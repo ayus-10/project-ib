@@ -2,10 +2,33 @@
 
 import { DARK, LIGHT } from "@/constants";
 import useThemes from "@/hooks/useThemes";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ChangeEvent } from "react";
 
 export default function NavBar() {
   const [theme, setTheme] = useThemes();
+
+  const pathname = usePathname();
+
+  const navLinks = [
+    {
+      title: "Sign in",
+      path: "/signin",
+    },
+    {
+      title: "Sign up",
+      path: "/signup",
+    },
+    {
+      title: "Admin",
+      path: "/admin",
+    },
+    {
+      title: "Home",
+      path: "/",
+    },
+  ];
 
   function toggleTheme(e: ChangeEvent<HTMLInputElement>) {
     const isDark = e.target.checked;
@@ -37,20 +60,20 @@ export default function NavBar() {
             tabIndex={0}
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
           >
-            <li>
-              <a>Sign in</a>
-            </li>
-            <li>
-              <a>Sign up</a>
-            </li>
-            <li>
-              <a>Admin</a>
-            </li>
+            {navLinks.map((link) =>
+              pathname !== link.path ? (
+                <li key={link.path}>
+                  <Link href={link.path}>{link.title}</Link>
+                </li>
+              ) : null
+            )}
           </ul>
         </div>
       </div>
       <div className="navbar-center">
-        <a className="btn btn-ghost text-xl">iBerozgar</a>
+        <Link href="/" className="btn btn-ghost text-xl">
+          iBerozgar
+        </Link>
       </div>
       <div className="navbar-end">
         <label className="flex cursor-pointer gap-2">
