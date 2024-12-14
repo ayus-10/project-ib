@@ -1,11 +1,23 @@
+import { FormEvent } from "react";
+
 type FormType = "SIGNIN" | "SIGNUP";
 const SIGNIN = "SIGNIN";
 const SIGNUP = "SIGNUP";
 
-export default function UserForm({ formType }: { formType: FormType }) {
+interface UserFormProps {
+  formType: FormType;
+}
+
+export default function UserForm(props: UserFormProps) {
+  const { formType } = props;
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+  }
+
   return (
     <div className="hero bg-base-200 min-h-screen">
-      <div className="hero-content flex-col lg:flex-row-reverse">
+      <div className="hero-content flex-col lg:flex-row">
         <div className="text-center lg:text-left">
           <h1 className="text-5xl font-bold">
             {formType === SIGNIN ? "Welcome back👋" : "Join now🎉"}
@@ -17,7 +29,20 @@ export default function UserForm({ formType }: { formType: FormType }) {
           </p>
         </div>
         <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-          <form className="card-body">
+          <form className="card-body" onSubmit={handleSubmit}>
+            {formType === SIGNUP ? (
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Full name</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="full name"
+                  className="input input-bordered"
+                  required
+                />
+              </div>
+            ) : null}
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Email</span>
