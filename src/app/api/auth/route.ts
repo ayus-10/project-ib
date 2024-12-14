@@ -1,4 +1,9 @@
-import { InternalServerError, Ok, Unauthorized } from "@/utils/httpResponses";
+import {
+  BadRequest,
+  InternalServerError,
+  Ok,
+  Unauthorized,
+} from "@/utils/httpResponses";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -23,6 +28,10 @@ export async function POST(request: Request) {
 
     const { email, password } = (await request.json()) as LoginUserDTO;
 
+    if (!email || !password) {
+      return BadRequest("Please provide all the values.");
+    }
+
     const userFound = await prisma.user.findFirst({ where: { email } });
     if (!userFound) {
       return Unauthorized("No user found with that email.");
@@ -46,9 +55,31 @@ export async function POST(request: Request) {
       name: "refreshToken",
       value: refreshToken,
       httpOnly: true,
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
     return Ok({ accessToken });
+  } catch (error) {
+    return InternalServerError(error);
+  }
+}
+
+// get user info
+export async function GET(request: Request) {
+  try {
+    const userEmail = request.custom.email;
+
+    if (!userEmail) {
+      return Unauthorized("Please log in to continue.");
+    }
+
+    const user = await prisma.user.findFirst({ where: { email: userEmail } });
+
+    if (!user) {
+      throw new Error("User not found in database.");
+    }
+
+    return Ok({ email: userEmail, fullName: user.fullName });
   } catch (error) {
     return InternalServerError(error);
   }

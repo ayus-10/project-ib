@@ -71,6 +71,7 @@ export async function POST(request: Request) {
       name: "refreshToken",
       value: refreshToken,
       httpOnly: true,
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
     return Created({ accessToken });

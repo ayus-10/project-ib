@@ -9,7 +9,7 @@ export function Unauthorized(error: string) {
 }
 
 export function InternalServerError(err: any) {
-  console.log(err);
+  console.log("Internal server error: ", err);
   return NextResponse.json({ error: "Internal server error" }, { status: 500 });
 }
 
