@@ -4,10 +4,19 @@ import { DARK, LIGHT } from "@/constants";
 import useThemes from "@/hooks/useThemes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
+import { FaUser } from "react-icons/fa";
+import UserProfileCard from "./UserProfileCard";
+import { useAppSelector } from "@/redux/hooks";
 
 export default function NavBar() {
   const [theme, setTheme] = useThemes();
+
+  const { email, fullName } = useAppSelector(
+    (state) => state.authenticatedUser
+  );
+
+  const [showProfileCard, setShowProfileCard] = useState(false);
 
   const pathname = usePathname();
 
@@ -37,7 +46,7 @@ export default function NavBar() {
   }
 
   return (
-    <div className="navbar bg-base-100">
+    <div className="navbar bg-base-100 relative">
       <div className="navbar-start">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
@@ -112,7 +121,18 @@ export default function NavBar() {
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </label>
+        <button
+          className="ml-4 btn btn-circle"
+          onClick={() => setShowProfileCard(!showProfileCard)}
+        >
+          <FaUser />
+        </button>
       </div>
+      {showProfileCard && email && fullName ? (
+        <div className="absolute right-0 top-[100%]">
+          <UserProfileCard email={email} fullName={fullName} />
+        </div>
+      ) : null}
     </div>
   );
 }

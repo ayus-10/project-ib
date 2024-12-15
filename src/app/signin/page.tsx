@@ -24,7 +24,7 @@ export default function Signin() {
       if (axios.isAxiosError(error)) {
         dispatch(setErrorMessage(error?.response?.data.error));
       }
-      console.log(error);
+      console.log("Unable to sign in: ", error);
     }
   }
 

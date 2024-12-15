@@ -1,3 +1,4 @@
+import { ERROR, SUCCESS } from "@/constants";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AlertMessage {
@@ -13,11 +14,11 @@ export const alertSlice = createSlice({
   reducers: {
     setSuccessMessage: (state, action: PayloadAction<string>) => {
       state.message = action.payload;
-      state.status = "SUCCESS";
+      state.status = SUCCESS;
     },
     setErrorMessage: (state, action: PayloadAction<string>) => {
       state.message = action.payload;
-      state.status = "ERROR";
+      state.status = ERROR;
     },
     removeAlertMessage: (state) => {
       state.message = null;

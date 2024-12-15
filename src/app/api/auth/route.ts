@@ -69,8 +69,7 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   try {
     const userEmail = request.headers.get("x-email");
-
-    console.log("Tryna get userEmail: ", userEmail);
+    const userRole = request.headers.get("x-role");
 
     if (!userEmail) {
       return Unauthorized("Please log in to continue.");
@@ -82,7 +81,7 @@ export async function GET(request: Request) {
       throw new Error("User not found in database.");
     }
 
-    return Ok({ email: userEmail, fullName: user.fullName });
+    return Ok({ email: userEmail, fullName: user.fullName, role: userRole });
   } catch (error) {
     return InternalServerError(error);
   }

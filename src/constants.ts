@@ -6,6 +6,8 @@ export const DARK = "dark";
 export const SIGNIN = "SIGNIN";
 export const SIGNUP = "SIGNUP";
 export const ACCESS_TOKEN = "ACCESS_TOKEN";
+export const SUCCESS = "SUCCESS";
+export const ERROR = "ERROR";
 
 // backend
 export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
