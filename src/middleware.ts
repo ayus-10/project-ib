@@ -23,11 +23,13 @@ export async function middleware(request: NextRequest) {
 
     const { payload } = await jwtVerify(authToken, secretKey);
 
-    request.custom.email = payload.email;
+    const response = NextResponse.next();
+
+    response.headers.set("x-email", payload.email as string);
+
+    return response;
   } catch (error) {
     console.log("Error in middleware: ", error);
     return NextResponse.next();
   }
-
-  return NextResponse.next();
 }

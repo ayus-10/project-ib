@@ -67,7 +67,9 @@ export async function POST(request: Request) {
 // get user info
 export async function GET(request: Request) {
   try {
-    const userEmail = request.custom.email;
+    const userEmail = request.headers.get("x-email");
+
+    console.log("Tryna get userEmail: ", userEmail);
 
     if (!userEmail) {
       return Unauthorized("Please log in to continue.");
