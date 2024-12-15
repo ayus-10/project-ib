@@ -1,31 +1,44 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
-import { ACCESS_TOKEN_SECRET } from "./constants";
+import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "./constants";
 import { jwtVerify } from "jose";
+import { MyJwtPayload } from "./interfaces/MyJwtPayload";
 
 export async function middleware(request: NextRequest) {
   if (!request.nextUrl.pathname.startsWith("/api")) return NextResponse.next();
 
+  // TODO: make custom guards for each protected route
+
   try {
+    if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
+      throw new Error("JWT secrets are not available.");
+    }
+    const refreshTokenSecret = new TextEncoder().encode(REFRESH_TOKEN_SECRET);
+    const accessTokenSecret = new TextEncoder().encode(ACCESS_TOKEN_SECRET);
+
+    const refreshTokenCookie = request.cookies.get("refreshToken");
+
+    if (!refreshTokenCookie || !refreshTokenCookie.value) {
+      throw new Error("Invalid refresh token in cookie.");
+    }
+
+    await jwtVerify(refreshTokenCookie.value, refreshTokenSecret);
+
     const authHeader = request.headers.get("authorization");
 
     if (!authHeader || authHeader.split(" ").length !== 2) {
       throw new Error("Invalid auth header.");
     }
 
-    if (!ACCESS_TOKEN_SECRET) {
-      throw new Error("Access token secret is not available.");
-    }
+    const accessToken = authHeader.split(" ")[1];
 
-    const authToken = authHeader.split(" ")[1];
-
-    const secretKey = new TextEncoder().encode(ACCESS_TOKEN_SECRET);
-
-    const { payload } = await jwtVerify(authToken, secretKey);
+    const { payload } = await jwtVerify(accessToken, accessTokenSecret);
+    const { email, role } = payload as MyJwtPayload;
 
     const response = NextResponse.next();
 
-    response.headers.set("x-email", payload.email as string);
+    response.headers.set("x-email", email);
+    response.headers.set("x-role", role);
 
     return response;
   } catch (error) {

@@ -42,10 +42,11 @@ export async function POST(request: Request) {
       return Unauthorized("The password is incorrect.");
     }
 
-    const accessToken = jwt.sign({ email }, ACCESS_TOKEN_SECRET, {
+    const { role } = userFound;
+    const accessToken = jwt.sign({ email, role }, ACCESS_TOKEN_SECRET, {
       expiresIn: "5m",
     });
-    const refreshToken = jwt.sign({ email }, REFRESH_TOKEN_SECRET, {
+    const refreshToken = jwt.sign({ email, role }, REFRESH_TOKEN_SECRET, {
       expiresIn: "1w",
     });
 

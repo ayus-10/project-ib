@@ -2,6 +2,7 @@ import { InternalServerError, Ok, Unauthorized } from "@/utils/httpResponses";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "@/constants";
+import { MyJwtPayload } from "@/interfaces/MyJwtPayload";
 
 // refresh jwt tokens
 export async function POST() {
@@ -15,23 +16,19 @@ export async function POST() {
     const cookieStore = await cookies();
     const refreshTokenCookie = cookieStore.get("refreshToken");
 
-    if (!refreshTokenCookie) {
+    if (!refreshTokenCookie || !refreshTokenCookie.value) {
       return Unauthorized("Please log in to continue.");
     }
 
-    const refreshToken = refreshTokenCookie.value;
-
-    const decoded = jwt.verify(
-      refreshToken,
+    const { email, role } = jwt.verify(
+      refreshTokenCookie.value,
       REFRESH_TOKEN_SECRET
-    ) as jwt.JwtPayload;
+    ) as MyJwtPayload;
 
-    const email = decoded.email as string;
-
-    const newAccessToken = jwt.sign({ email }, ACCESS_TOKEN_SECRET, {
+    const newAccessToken = jwt.sign({ email, role }, ACCESS_TOKEN_SECRET, {
       expiresIn: "5m",
     });
-    const newRefreshToken = jwt.sign({ email }, REFRESH_TOKEN_SECRET, {
+    const newRefreshToken = jwt.sign({ email, role }, REFRESH_TOKEN_SECRET, {
       expiresIn: "1w",
     });
 

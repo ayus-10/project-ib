@@ -7,7 +7,12 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import jwt from "jsonwebtoken";
-import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "@/constants";
+import {
+  ACCESS_TOKEN_SECRET,
+  ADMIN,
+  REFRESH_TOKEN_SECRET,
+  USER,
+} from "@/constants";
 import { cookies } from "next/headers";
 
 const prisma = new PrismaClient();
@@ -16,6 +21,7 @@ interface CreateUserDTO {
   email: string;
   password: string;
   fullName: string;
+  isAdmin?: boolean;
 }
 
 // create user
@@ -27,7 +33,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email, fullName, password } =
+    const { email, fullName, password, isAdmin } =
       (await request.json()) as CreateUserDTO;
 
     if (!email || !fullName || !password) {
@@ -50,18 +56,20 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
+    const role = isAdmin ? ADMIN : USER;
     await prisma.user.create({
       data: {
         email,
         fullName,
         password: passwordHash,
+        role,
       },
     });
 
-    const accessToken = jwt.sign({ email }, ACCESS_TOKEN_SECRET, {
+    const accessToken = jwt.sign({ email, role }, ACCESS_TOKEN_SECRET, {
       expiresIn: "5m",
     });
-    const refreshToken = jwt.sign({ email }, REFRESH_TOKEN_SECRET, {
+    const refreshToken = jwt.sign({ email, role }, REFRESH_TOKEN_SECRET, {
       expiresIn: "1w",
     });
 
