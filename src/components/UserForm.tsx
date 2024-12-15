@@ -1,18 +1,34 @@
-import { FormEvent } from "react";
+import { SigninPayload } from "@/interfaces/SigninPayload";
+import { SignupPayload } from "@/interfaces/SignupPayload";
+import { FormEvent, useState } from "react";
+import { SIGNIN, SIGNUP } from "../constants";
 
 type FormType = "SIGNIN" | "SIGNUP";
-const SIGNIN = "SIGNIN";
-const SIGNUP = "SIGNUP";
 
 interface UserFormProps {
   formType: FormType;
+  handleSignin?: (payload: SigninPayload) => Promise<void>;
+  handleSignup?: (payload: SignupPayload) => Promise<void>;
 }
 
 export default function UserForm(props: UserFormProps) {
-  const { formType } = props;
+  const { formType, handleSignin, handleSignup } = props;
+
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
+
+    if (formType === SIGNIN && handleSignin) {
+      handleSignin({ email, password });
+    }
+
+    if (formType === SIGNUP && handleSignup) {
+      handleSignup({ email, password, fullName, isAdmin });
+    }
   }
 
   return (
@@ -36,6 +52,7 @@ export default function UserForm(props: UserFormProps) {
                   <span className="label-text">Full name</span>
                 </label>
                 <input
+                  onChange={(e) => setFullName(e.target.value)}
                   type="text"
                   placeholder="full name"
                   className="input input-bordered"
@@ -48,6 +65,7 @@ export default function UserForm(props: UserFormProps) {
                 <span className="label-text">Email</span>
               </label>
               <input
+                onChange={(e) => setEmail(e.target.value)}
                 type="email"
                 placeholder="email"
                 className="input input-bordered"
@@ -59,12 +77,25 @@ export default function UserForm(props: UserFormProps) {
                 <span className="label-text">Password</span>
               </label>
               <input
+                onChange={(e) => setPassword(e.target.value)}
                 type="password"
                 placeholder="password"
                 className="input input-bordered"
                 required
               />
             </div>
+            {formType === SIGNUP ? (
+              <div className="form-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">Sign up as Admin?</span>
+                  <input
+                    onChange={(e) => setIsAdmin(e.target.checked)}
+                    type="checkbox"
+                    className="checkbox checkbox-primary"
+                  />
+                </label>
+              </div>
+            ) : null}
             <div className="form-control mt-6">
               <button className="btn btn-primary">
                 {formType === SIGNUP ? "Sign up" : "Sign in"}
