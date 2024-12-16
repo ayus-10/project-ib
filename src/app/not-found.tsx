@@ -11,8 +11,8 @@ export default function NotFound() {
         <div className="max-w-md">
           <h1 className="text-5xl font-bold">404 Not Found</h1>
           <p className="py-6">
-            Sorry, we can't find that page. You'll find lots to explore on the
-            home page.
+            Sorry, we can&apos;t find that page. You&apos;ll find lots to
+            explore on the home page.
           </p>
           <button className="btn btn-primary" onClick={() => router.push("/")}>
             Back

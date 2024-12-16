@@ -29,4 +29,6 @@ model Job {
   location String @db.Text
   userId Int
   user User @relation(fields: [userId], references: [id])
+  created DateTime
+  deadline DateTime
 }

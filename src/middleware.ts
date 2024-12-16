@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
     }
 
     return response;
-  } catch (error) {
+  } catch {
     if (isAdminOnlyRoute) {
       return BadRequest("Only admins can access this URL.");
     }

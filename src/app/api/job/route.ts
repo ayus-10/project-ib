@@ -20,11 +20,23 @@ interface CreateJobDTO {
   description: string;
   company: string;
   location: string;
+  created: string;
+  deadline: string;
 }
 
-interface UpdateJobDTO extends CreateJobDTO, GetJobDTO {}
+interface UpdateJobDTO {
+  title: string;
+  description: string;
+  company: string;
+  location: string;
+  created: string;
+  deadline: string;
+  jobId: number;
+}
 
-interface DeleteJobDTO extends GetJobDTO {}
+interface DeleteJobDTO {
+  jobId: number;
+}
 
 const prisma = new PrismaClient();
 
@@ -49,7 +61,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { company, description, location, title } =
+    const { company, description, location, title, created, deadline } =
       (await request.json()) as CreateJobDTO;
 
     const userIdString = request.headers.get("x-id");
@@ -59,7 +71,16 @@ export async function POST(request: Request) {
 
     const userId = parseInt(userIdString);
 
-    if (!areJobDetailsValid(company, description, location, title)) {
+    if (
+      !areJobDetailsValid(
+        company,
+        description,
+        location,
+        title,
+        created,
+        deadline
+      )
+    ) {
       return BadRequest("Please make sure all the provided data are valid.");
     }
 
@@ -68,7 +89,15 @@ export async function POST(request: Request) {
     }
 
     await prisma.job.create({
-      data: { company, description, location, title, userId },
+      data: {
+        company,
+        description,
+        location,
+        title,
+        userId,
+        created: new Date(created),
+        deadline: new Date(deadline),
+      },
     });
 
     return Ok("Job listing created successfully.");
@@ -79,10 +108,19 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    const { company, description, jobId, location, title } =
+    const { company, description, jobId, location, title, created, deadline } =
       (await request.json()) as UpdateJobDTO;
 
-    if (!areJobDetailsValid(company, description, location, title)) {
+    if (
+      !areJobDetailsValid(
+        company,
+        description,
+        location,
+        title,
+        created,
+        deadline
+      )
+    ) {
       return BadRequest("Please make sure all the provided data are valid.");
     }
 
@@ -118,6 +156,8 @@ export async function PATCH(request: Request) {
         description,
         location,
         title,
+        created: new Date(created),
+        deadline: new Date(deadline),
       },
     });
 
