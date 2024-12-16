@@ -5,10 +5,7 @@ import { jwtVerify } from "jose";
 import { MyJwtPayload } from "./interfaces/MyJwtPayload";
 
 export async function middleware(request: NextRequest) {
-  if (!request.nextUrl.pathname.startsWith("/api")) return NextResponse.next();
-
-  // TODO: make custom guards for each protected route
-
+  // check for access and refresh tokens to determine if user is logged in
   try {
     if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
       throw new Error("JWT secrets are not available.");
