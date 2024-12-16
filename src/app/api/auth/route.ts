@@ -42,11 +42,11 @@ export async function POST(request: Request) {
       return Unauthorized("The password is incorrect.");
     }
 
-    const { role } = userFound;
-    const accessToken = jwt.sign({ email, role }, ACCESS_TOKEN_SECRET, {
+    const { id, role } = userFound;
+    const accessToken = jwt.sign({ id, email, role }, ACCESS_TOKEN_SECRET, {
       expiresIn: "5m",
     });
-    const refreshToken = jwt.sign({ email, role }, REFRESH_TOKEN_SECRET, {
+    const refreshToken = jwt.sign({ id, email, role }, REFRESH_TOKEN_SECRET, {
       expiresIn: "1w",
     });
 
@@ -68,20 +68,28 @@ export async function POST(request: Request) {
 // get user info
 export async function GET(request: Request) {
   try {
+    const userId = request.headers.get("x-id");
     const userEmail = request.headers.get("x-email");
     const userRole = request.headers.get("x-role");
 
-    if (!userEmail) {
+    if (!userId || !userEmail || !userRole) {
       return Unauthorized("Please log in to continue.");
     }
 
-    const user = await prisma.user.findFirst({ where: { email: userEmail } });
+    const user = await prisma.user.findFirst({
+      where: { id: parseInt(userId) },
+    });
 
     if (!user) {
       throw new Error("User not found in database.");
     }
 
-    return Ok({ email: userEmail, fullName: user.fullName, role: userRole });
+    return Ok({
+      id: userId,
+      email: userEmail,
+      fullName: user.fullName,
+      role: userRole,
+    });
   } catch (error) {
     return InternalServerError(error);
   }

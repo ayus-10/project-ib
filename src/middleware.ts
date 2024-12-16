@@ -30,10 +30,11 @@ export async function middleware(request: NextRequest) {
     const accessToken = authHeader.split(" ")[1];
 
     const { payload } = await jwtVerify(accessToken, accessTokenSecret);
-    const { email, role } = payload as MyJwtPayload;
+    const { id, email, role } = payload as MyJwtPayload;
 
     const response = NextResponse.next();
 
+    response.headers.set("x-id", id.toString());
     response.headers.set("x-email", email);
     response.headers.set("x-role", role);
 

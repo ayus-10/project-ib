@@ -20,17 +20,21 @@ export async function POST() {
       return Unauthorized("Please log in to continue.");
     }
 
-    const { email, role } = jwt.verify(
+    const { id, email, role } = jwt.verify(
       refreshTokenCookie.value,
       REFRESH_TOKEN_SECRET
     ) as MyJwtPayload;
 
-    const newAccessToken = jwt.sign({ email, role }, ACCESS_TOKEN_SECRET, {
+    const newAccessToken = jwt.sign({ id, email, role }, ACCESS_TOKEN_SECRET, {
       expiresIn: "5m",
     });
-    const newRefreshToken = jwt.sign({ email, role }, REFRESH_TOKEN_SECRET, {
-      expiresIn: "1w",
-    });
+    const newRefreshToken = jwt.sign(
+      { id, email, role },
+      REFRESH_TOKEN_SECRET,
+      {
+        expiresIn: "1w",
+      }
+    );
 
     cookieStore.set({
       name: "refreshToken",

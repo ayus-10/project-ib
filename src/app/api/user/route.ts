@@ -56,20 +56,20 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const role = isAdmin ? ADMIN : USER;
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email,
         fullName,
         password: passwordHash,
-        role,
+        role: isAdmin ? ADMIN : USER,
       },
     });
 
-    const accessToken = jwt.sign({ email, role }, ACCESS_TOKEN_SECRET, {
+    const { id, role } = user;
+    const accessToken = jwt.sign({ id, email, role }, ACCESS_TOKEN_SECRET, {
       expiresIn: "5m",
     });
-    const refreshToken = jwt.sign({ email, role }, REFRESH_TOKEN_SECRET, {
+    const refreshToken = jwt.sign({ id, email, role }, REFRESH_TOKEN_SECRET, {
       expiresIn: "1w",
     });
 
