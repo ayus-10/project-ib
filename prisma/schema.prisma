@@ -13,9 +13,20 @@ model User {
   fullName String
   password String
   role Role @default(USER)
+  jobs Job[]
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+model Job {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  company String
+  location String
+  userId Int
+  user User @relation(fields: [userId], references: [id])
 }
