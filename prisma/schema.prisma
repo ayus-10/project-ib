@@ -23,10 +23,10 @@ enum Role {
 
 model Job {
   id Int @id @default(autoincrement())
-  title String
-  description String
-  company String
-  location String
+  title String @db.Text
+  description String @db.Text
+  company String @db.Text
+  location String @db.Text
   userId Int
   user User @relation(fields: [userId], references: [id])
 }

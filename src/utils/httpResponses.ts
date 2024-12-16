@@ -8,6 +8,10 @@ export function Unauthorized(error: string) {
   return NextResponse.json({ error }, { status: 401 });
 }
 
+export function NotFound(error: string) {
+  return NextResponse.json({ error }, { status: 404 });
+}
+
 export function InternalServerError(err: any) {
   console.log("Internal server error: ", err);
   return NextResponse.json({ error: "Internal server error" }, { status: 500 });
