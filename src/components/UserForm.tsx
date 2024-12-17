@@ -32,7 +32,7 @@ export default function UserForm(props: UserFormProps) {
   }
 
   return (
-    <div className="hero bg-base-200 min-h-screen">
+    <div className="hero bg-base-200 min-h-[calc(100vh-4rem)]">
       <div className="hero-content flex-col lg:flex-row">
         <div className="text-center lg:text-left">
           <h1 className="text-5xl font-bold">

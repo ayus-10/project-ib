@@ -1,4 +1,10 @@
 import {
+  CreateJobDTO,
+  DeleteJobDTO,
+  GetJobDTO,
+  UpdateJobDTO,
+} from "@/interfaces/JobDTOs";
+import {
   BadRequest,
   InternalServerError,
   NotFound,
@@ -10,37 +16,6 @@ import {
   hasMinimumWords,
 } from "@/utils/jobDetailsValidation";
 import { PrismaClient } from "@prisma/client";
-
-interface GetJobDTO {
-  jobId: number;
-}
-
-type JobType = "REMOTE" | "HYBRID" | "ONSITE";
-
-interface CreateJobDTO {
-  title: string;
-  description: string;
-  company: string;
-  location: string;
-  created: string;
-  deadline: string;
-  type: JobType;
-}
-
-interface UpdateJobDTO {
-  title: string;
-  description: string;
-  company: string;
-  location: string;
-  created: string;
-  deadline: string;
-  type: JobType;
-  jobId: number;
-}
-
-interface DeleteJobDTO {
-  jobId: number;
-}
 
 const prisma = new PrismaClient();
 

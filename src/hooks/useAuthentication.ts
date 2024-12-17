@@ -8,11 +8,7 @@ import axios from "axios";
 export default function useAuthentication() {
   const dispatch = useAppDispatch();
 
-  const setStates = (
-    email: string | undefined,
-    fullName: string | undefined,
-    role: string | undefined
-  ) =>
+  const setStates = (email?: string, fullName?: string, role?: string) =>
     dispatch(
       setAuthenticatedUser({
         email: email ?? null,
@@ -37,9 +33,9 @@ export default function useAuthentication() {
           const newRes = await getAuthenticatedUser();
           setStates(newRes.data.email, newRes.data.fullName, newRes.data.role);
         } catch (newError) {
+          setStates();
           console.log("Unable to authenticate user: ", newError);
         }
-        console.log("Unable to get authenticated user: ", error);
       }
     }
 
