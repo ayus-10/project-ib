@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch } from "../redux/hooks";
 import { setAuthenticatedUser } from "../redux/slices/authenticatedUserSlice";
 import refreshTokens from "../requests/refreshTokens";
@@ -6,9 +6,15 @@ import getAuthenticatedUser from "@/requests/getAuthenticatedUser";
 import axios from "axios";
 
 export default function useAuthentication() {
+  const [authenticated, setauthenticated] = useState<boolean | undefined>(
+    undefined
+  );
+
   const dispatch = useAppDispatch();
 
-  const setStates = (email?: string, fullName?: string, role?: string) =>
+  const setStates = (email?: string, fullName?: string, role?: string) => {
+    setauthenticated(!!email && !!fullName && !!role);
+
     dispatch(
       setAuthenticatedUser({
         email: email ?? null,
@@ -16,6 +22,7 @@ export default function useAuthentication() {
         role: role ?? null,
       })
     );
+  };
 
   useEffect(() => {
     async function authenticateUser() {
@@ -40,5 +47,7 @@ export default function useAuthentication() {
     }
 
     authenticateUser();
-  }, []);
+  }, [setStates]);
+
+  return authenticated;
 }

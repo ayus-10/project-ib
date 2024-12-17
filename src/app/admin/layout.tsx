@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { FaChevronRight } from "react-icons/fa";
 
 export default function AdminLayout({
@@ -10,18 +8,11 @@ export default function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname();
-  const router = useRouter();
-
   const links = [
     { title: "Create Job", path: "/admin/create" },
     { title: "Manage Jobs", path: "/admin/manage" },
     { title: "View Applicants", path: "/admin/applicants" },
   ];
-
-  useEffect(() => {
-    if (pathname === "/admin") router.push("/admin/create");
-  }, [router, pathname]);
 
   return (
     <div className="drawer lg:drawer-open">
