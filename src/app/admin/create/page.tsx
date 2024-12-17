@@ -4,6 +4,7 @@ import { ACCESS_TOKEN } from "@/constants";
 import { CreateJobDTO } from "@/interfaces/CreateJobDTO";
 import { useAppDispatch } from "@/redux/hooks";
 import { setErrorMessage, setSuccessMessage } from "@/redux/slices/alertSlice";
+import refreshTokens from "@/requests/refreshTokens";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FormEvent, useRef, useState } from "react";
@@ -41,26 +42,40 @@ export default function Create() {
     const payload: CreateJobDTO = {
       title: titleInputRef.current.value,
       company: companyInputRef.current.value,
-      location: locationInputRef.current.value,
+      location: locationInputRef.current.value || "REMOTE",
       description: descriptionInputRef.current.value,
       deadline: new Date(deadlineInputRef.current.value).toISOString(),
       created: new Date().toISOString(),
       type: jobTypeId === 1 ? "REMOTE" : jobTypeId === 2 ? "HYBRID" : "ONSITE",
     };
 
-    try {
-      const accessToken = localStorage.getItem(ACCESS_TOKEN);
-      await axios.post("/api/job", payload, {
+    const sendRequest = () =>
+      axios.post("/api/job", payload, {
         withCredentials: true,
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
+        },
       });
+
+    try {
+      await sendRequest();
       dispatch(setSuccessMessage("Successfully created the job listing."));
       router.push("/admin/manage");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        dispatch(setErrorMessage(error?.response?.data.error));
+        try {
+          await refreshTokens();
+
+          await sendRequest();
+          dispatch(setSuccessMessage("Successfully created the job listing."));
+          router.push("/admin/manage");
+        } catch (newError) {
+          if (axios.isAxiosError(newError)) {
+            dispatch(setErrorMessage(newError?.response?.data.error));
+          }
+          console.log("Unable to create job: ", newError);
+        }
       }
-      console.log("Unable to create job: ", error);
     }
   }
 
@@ -104,17 +119,19 @@ export default function Create() {
           <option value={2}>Hybrid</option>
           <option value={3}>On-site</option>
         </select>
-        {jobTypeId !== 0 ? (
-          <label className="input input-bordered flex items-center gap-2">
-            Location
-            <input
-              ref={locationInputRef}
-              type="text"
-              className="grow"
-              placeholder="United States of Disneyland"
-            />
-          </label>
-        ) : null}
+        <label
+          className={`input input-bordered items-center gap-2 ${
+            jobTypeId === 2 || jobTypeId === 3 ? "flex" : "hidden"
+          }`}
+        >
+          Location
+          <input
+            ref={locationInputRef}
+            type="text"
+            className="grow"
+            placeholder="United States of Disneyland"
+          />
+        </label>
         <label className="input input-bordered flex items-center gap-2">
           Deadline
           <input ref={deadlineInputRef} type="date" className="grow" />
