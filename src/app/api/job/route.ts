@@ -1,9 +1,5 @@
-import {
-  CreateJobDTO,
-  DeleteJobDTO,
-  GetJobDTO,
-  UpdateJobDTO,
-} from "@/interfaces/JobDTOs";
+import { CreateJobDTO } from "@/interfaces/CreateJobDTO";
+import { UpdateJobDTO } from "@/interfaces/UpdateJobDTO";
 import {
   BadRequest,
   InternalServerError,
@@ -21,8 +17,10 @@ const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   try {
-    const { jobId } = (await request.json()) as GetJobDTO;
-    if (!jobId) {
+    const url = new URL(request.url);
+    const jobId = parseInt(url.searchParams.get("jobId") ?? "");
+
+    if (!jobId || Number.isNaN(jobId)) {
       return BadRequest("Invalid job ID.");
     }
 
@@ -160,8 +158,10 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const { jobId } = (await request.json()) as DeleteJobDTO;
-    if (!jobId) {
+    const url = new URL(request.url);
+    const jobId = parseInt(url.searchParams.get("jobId") ?? "");
+
+    if (!jobId || Number.isNaN(jobId)) {
       return BadRequest("Invalid job ID.");
     }
 

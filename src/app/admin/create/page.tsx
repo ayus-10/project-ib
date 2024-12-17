@@ -1,7 +1,7 @@
 "use client";
 
 import { ACCESS_TOKEN } from "@/constants";
-import { CreateJobDTO } from "@/interfaces/JobDTOs";
+import { CreateJobDTO } from "@/interfaces/CreateJobDTO";
 import { useAppDispatch } from "@/redux/hooks";
 import { setErrorMessage, setSuccessMessage } from "@/redux/slices/alertSlice";
 import axios from "axios";
@@ -50,7 +50,7 @@ export default function Create() {
 
     try {
       const accessToken = localStorage.getItem(ACCESS_TOKEN);
-      const res = await axios.post("/api/job", payload, {
+      await axios.post("/api/job", payload, {
         withCredentials: true,
         headers: { Authorization: `Bearer ${accessToken}` },
       });
