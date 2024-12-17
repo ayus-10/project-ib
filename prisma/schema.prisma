@@ -21,6 +21,12 @@ enum Role {
   ADMIN
 }
 
+enum JobType {
+  REMOTE
+  HYBRID
+  ONSITE
+}
+
 model Job {
   id Int @id @default(autoincrement())
   title String @db.Text
@@ -31,4 +37,5 @@ model Job {
   user User @relation(fields: [userId], references: [id])
   created DateTime
   deadline DateTime
+  type JobType @default(ONSITE)
 }

@@ -4,6 +4,9 @@ const isValidString = (data: unknown) =>
 const isValidDate = (date: unknown) =>
   typeof date === "string" && !Number.isNaN(Date.parse(date));
 
+const isValidJobType = (type: unknown) =>
+  typeof type === "string" && ["REMOTE", "HYBRID", "ONSITE"].includes(type);
+
 export const hasMinimumWords = (text: string) => text.split(" ").length >= 50;
 
 export const areJobDetailsValid = (
@@ -12,11 +15,13 @@ export const areJobDetailsValid = (
   location: unknown,
   title: unknown,
   created: unknown,
-  deadline: unknown
+  deadline: unknown,
+  type: unknown
 ) =>
   isValidString(company) &&
   isValidString(description) &&
   isValidString(location) &&
   isValidString(title) &&
   isValidDate(created) &&
-  isValidDate(deadline);
+  isValidDate(deadline) &&
+  isValidJobType(type);

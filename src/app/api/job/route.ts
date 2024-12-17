@@ -15,6 +15,8 @@ interface GetJobDTO {
   jobId: number;
 }
 
+type JobType = "REMOTE" | "HYBRID" | "ONSITE";
+
 interface CreateJobDTO {
   title: string;
   description: string;
@@ -22,6 +24,7 @@ interface CreateJobDTO {
   location: string;
   created: string;
   deadline: string;
+  type: JobType;
 }
 
 interface UpdateJobDTO {
@@ -31,6 +34,7 @@ interface UpdateJobDTO {
   location: string;
   created: string;
   deadline: string;
+  type: JobType;
   jobId: number;
 }
 
@@ -61,7 +65,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { company, description, location, title, created, deadline } =
+    const { company, description, location, title, created, deadline, type } =
       (await request.json()) as CreateJobDTO;
 
     const userIdString = request.headers.get("x-id");
@@ -78,7 +82,8 @@ export async function POST(request: Request) {
         location,
         title,
         created,
-        deadline
+        deadline,
+        type
       )
     ) {
       return BadRequest("Please make sure all the provided data are valid.");
@@ -97,6 +102,7 @@ export async function POST(request: Request) {
         userId,
         created: new Date(created),
         deadline: new Date(deadline),
+        type,
       },
     });
 
@@ -108,8 +114,16 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    const { company, description, jobId, location, title, created, deadline } =
-      (await request.json()) as UpdateJobDTO;
+    const {
+      company,
+      description,
+      jobId,
+      location,
+      title,
+      created,
+      deadline,
+      type,
+    } = (await request.json()) as UpdateJobDTO;
 
     if (
       !areJobDetailsValid(
@@ -118,7 +132,8 @@ export async function PATCH(request: Request) {
         location,
         title,
         created,
-        deadline
+        deadline,
+        type
       )
     ) {
       return BadRequest("Please make sure all the provided data are valid.");
@@ -158,6 +173,7 @@ export async function PATCH(request: Request) {
         title,
         created: new Date(created),
         deadline: new Date(deadline),
+        type,
       },
     });
 
