@@ -2,15 +2,30 @@
 
 import JobForm from "@/components/JobForm";
 import { ACCESS_TOKEN } from "@/constants";
-import { CreateJobDTO } from "@/interfaces/CreateJobDTO";
+import { JobListing } from "@/interfaces/JobListing";
+import { UpdateJobDTO } from "@/interfaces/UpdateJobDTO";
 import { useAppDispatch } from "@/redux/hooks";
 import { setErrorMessage, setSuccessMessage } from "@/redux/slices/alertSlice";
 import refreshTokens from "@/requests/refreshTokens";
 import axios from "axios";
-import { useRouter } from "next/navigation";
-import { FormEvent, useRef, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
-export default function Create() {
+interface GetJobListing {
+  job: JobListing;
+}
+
+export default function Edit() {
+  const [jobListing, setJobListing] = useState<JobListing | undefined>(
+    undefined
+  );
+
+  const dispatch = useAppDispatch();
+
+  const jobId = useSearchParams().get("jobId");
+
+  const router = useRouter();
+
   const [jobType, setJobType] = useState<null | number>(null);
 
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -19,12 +34,29 @@ export default function Create() {
   const deadlineInputRef = useRef<HTMLInputElement>(null);
   const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
 
-  const dispatch = useAppDispatch();
+  useEffect(() => {
+    async function getJob() {
+      try {
+        if (!jobId) {
+          throw new Error("Invalid job ID.");
+        }
+        const res = await axios.get<GetJobListing>("/api/job?jobId=" + jobId);
+        setJobListing(res.data.job);
+      } catch (error) {
+        router.push("/admin");
+        console.log("Unable to get job listing: ", error);
+      }
+    }
 
-  const router = useRouter();
+    getJob();
+  }, [router, jobId]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+
+    if (!jobListing) {
+      return;
+    }
 
     if (
       !titleInputRef.current ||
@@ -40,18 +72,25 @@ export default function Create() {
       return;
     }
 
-    const payload: CreateJobDTO = {
+    const jobIdInt = parseInt(jobId ?? "");
+
+    if (Number.isNaN(jobIdInt)) {
+      return;
+    }
+
+    const payload: UpdateJobDTO = {
+      jobId: jobIdInt,
       title: titleInputRef.current.value,
       company: companyInputRef.current.value,
       location: locationInputRef.current.value || "REMOTE",
       description: descriptionInputRef.current.value,
       deadline: new Date(deadlineInputRef.current.value).toISOString(),
-      created: new Date().toISOString(),
+      created: jobListing.created,
       type: jobType === 1 ? "REMOTE" : jobType === 2 ? "HYBRID" : "ONSITE",
     };
 
     const sendRequest = () =>
-      axios.post("/api/job", payload, {
+      axios.patch("/api/job", payload, {
         withCredentials: true,
         headers: {
           Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
@@ -60,7 +99,7 @@ export default function Create() {
 
     try {
       await sendRequest();
-      dispatch(setSuccessMessage("Successfully created the job listing."));
+      dispatch(setSuccessMessage("Successfully updated the job listing."));
       router.push("/admin/manage");
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -68,13 +107,13 @@ export default function Create() {
           await refreshTokens();
 
           await sendRequest();
-          dispatch(setSuccessMessage("Successfully created the job listing."));
+          dispatch(setSuccessMessage("Successfully updated the job listing."));
           router.push("/admin/manage");
         } catch (newError) {
           if (axios.isAxiosError(newError)) {
             dispatch(setErrorMessage(newError?.response?.data.error));
           }
-          console.log("Unable to create job: ", newError);
+          console.log("Unable to update job: ", newError);
         }
       }
     }
@@ -83,10 +122,10 @@ export default function Create() {
   return (
     <div className="w-full p-8 bg-base-200 min-h-screen">
       <div>
-        <h1 className="text-2xl font-bold">Create a New Job Listing</h1>
+        <h1 className="text-2xl font-bold">Edit: {jobListing?.title}</h1>
         <p>
-          Would you like to post a new job listing? Fill in the required details
-          such as the job title, description, location, company to proceed.
+          Please feel free to review the content carefully, make any changes or
+          adjustments and then click the submit button to finalize your updates!
         </p>
       </div>
       <JobForm
@@ -98,6 +137,7 @@ export default function Create() {
         locationRef={locationInputRef}
         setJobType={setJobType}
         titleRef={titleInputRef}
+        defaultValues={jobListing}
       />
     </div>
   );

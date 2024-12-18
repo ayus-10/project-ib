@@ -1,32 +1,32 @@
 "use client";
 
 import { ACCESS_TOKEN } from "@/constants";
+import { JobListing } from "@/interfaces/JobListing";
+import { useAppDispatch } from "@/redux/hooks";
+import { setErrorMessage, setSuccessMessage } from "@/redux/slices/alertSlice";
 import refreshTokens from "@/requests/refreshTokens";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IoMdSettings } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 
-interface Job {
-  id: string;
-  title: string;
-  company: string;
-  created: string;
-  deadline: string;
-}
-
-interface GetJobsResponse {
-  jobs: Job[];
+interface GetJobListings {
+  jobs: JobListing[];
 }
 
 export default function Manage() {
-  const [createdJobs, setCreatedJobs] = useState<Job[]>([]);
+  const [createdJobs, setCreatedJobs] = useState<JobListing[]>([]);
+
+  const dispatch = useAppDispatch();
+
+  const router = useRouter();
 
   useEffect(() => {
     async function getJobs() {
       try {
         await refreshTokens();
-        const res = await axios.get<GetJobsResponse>("/api/job/all", {
+        const res = await axios.get<GetJobListings>("/api/job/all", {
           withCredentials: true,
           headers: {
             Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
@@ -40,6 +40,29 @@ export default function Manage() {
 
     getJobs();
   }, []);
+
+  function handleEdit(id: string) {
+    router.push("/admin/edit?jobId=" + id);
+  }
+
+  function handleDelete(id: string) {
+    const confirmed = confirm("Really delete this job?");
+    if (!confirmed) return;
+    deleteJob(id);
+  }
+
+  function deleteJob(id: string) {
+    axios
+      .delete("/api/job?jobId=" + id, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
+        },
+      })
+      .then((res) => dispatch(setSuccessMessage(res.data.message)))
+      .catch((err) => dispatch(setErrorMessage(err.response.data.error)))
+      .finally(() => router.push("/admin"));
+  }
 
   return (
     <div className="overflow-x-auto h-full py-4">
@@ -63,10 +86,16 @@ export default function Manage() {
               <td>{new Date(job.created).toDateString()}</td>
               <td>{new Date(job.deadline).toDateString()}</td>
               <td>
-                <button className="btn text-base btn-sm btn-outline lg:rounded-r-none">
+                <button
+                  className="btn text-base btn-sm btn-outline lg:rounded-r-none"
+                  onClick={() => handleEdit(job.id)}
+                >
                   <IoMdSettings />
                 </button>
-                <button className="btn text-base btn-sm btn-outline lg:rounded-l-none">
+                <button
+                  className="btn text-base btn-sm btn-outline lg:rounded-l-none"
+                  onClick={() => handleDelete(job.id)}
+                >
                   <MdDelete />
                 </button>
               </td>
