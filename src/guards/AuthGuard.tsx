@@ -1,5 +1,6 @@
 "use client";
 
+import LoadingSpinner from "@/components/LoadingSpinner";
 import useAuthentication from "@/hooks/useAuthentication";
 import { useAppDispatch } from "@/redux/hooks";
 import { setErrorMessage } from "@/redux/slices/alertSlice";
@@ -33,11 +34,7 @@ export default function AuthGuard({
   }
 
   if (authenticated === undefined) {
-    return (
-      <div className="h-[calc(100vh-4rem)] grid place-content-center">
-        <span className="loading loading-ring w-40 -mt-16"></span>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (authenticated === true) {

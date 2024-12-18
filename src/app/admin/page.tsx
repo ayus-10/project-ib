@@ -1,5 +1,6 @@
 "use client";
 
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -10,9 +11,5 @@ export default function Admin() {
   useEffect(() => {
     if (pathname === "/admin") router.push("/admin/create");
   }, [router, pathname]);
-  return (
-    <div className="h-[calc(100vh-4rem)] grid place-content-center">
-      <span className="loading loading-ring w-40 -mt-16"></span>
-    </div>
-  );
+  return <LoadingSpinner />;
 }

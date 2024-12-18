@@ -1,6 +1,7 @@
 "use client";
 
 import JobForm from "@/components/JobForm";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { ACCESS_TOKEN } from "@/constants";
 import { JobListing } from "@/interfaces/JobListing";
 import { UpdateJobDTO } from "@/interfaces/UpdateJobDTO";
@@ -119,10 +120,10 @@ export default function Edit() {
     }
   }
 
-  return (
+  return jobListing ? (
     <div className="w-full p-8 bg-base-200 min-h-screen">
       <div>
-        <h1 className="text-2xl font-bold">Edit: {jobListing?.title}</h1>
+        <h1 className="text-2xl font-bold">Edit: {jobListing.title}</h1>
         <p>
           Please feel free to review the content carefully, make any changes or
           adjustments and then click the submit button to finalize your updates!
@@ -140,5 +141,7 @@ export default function Edit() {
         defaultValues={jobListing}
       />
     </div>
+  ) : (
+    <LoadingSpinner />
   );
 }
