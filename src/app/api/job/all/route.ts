@@ -1,4 +1,9 @@
-import { BadRequest, InternalServerError, Ok } from "@/utils/httpResponses";
+import {
+  BadRequest,
+  InternalServerError,
+  NotFound,
+  Ok,
+} from "@/utils/httpResponses";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -26,10 +31,14 @@ export async function GET(request: Request) {
       }
 
       const jobs = await prisma.job.findMany({
-        take: 10,
+        take: 5,
         skip: pageNumber,
         orderBy: { id: "desc" },
       });
+
+      if (jobs.length === 0) {
+        return NotFound("No more jobs available.");
+      }
 
       return Ok({ jobs });
     }

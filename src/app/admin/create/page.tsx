@@ -59,16 +59,16 @@ export default function Create() {
       });
 
     try {
-      await sendRequest();
-      dispatch(setSuccessMessage("Successfully created the job listing."));
+      const res = await sendRequest();
+      dispatch(setSuccessMessage(res.data.message));
       router.push("/admin/manage");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         try {
           await refreshTokens();
 
-          await sendRequest();
-          dispatch(setSuccessMessage("Successfully created the job listing."));
+          const newRes = await sendRequest();
+          dispatch(setSuccessMessage(newRes.data.message));
           router.push("/admin/manage");
         } catch (newError) {
           if (axios.isAxiosError(newError)) {

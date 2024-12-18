@@ -41,6 +41,16 @@ export default function JobForm(props: JobFormProps) {
       ? 3
       : undefined;
 
+  function increaseTextAreaSize() {
+    const textAreaElement = descriptionRef.current;
+    if (!textAreaElement) return;
+    if (textAreaElement.scrollHeight > textAreaElement.offsetHeight) {
+      textAreaElement.style.height = `${textAreaElement.scrollHeight}px`;
+    }
+  }
+
+  useEffect(() => increaseTextAreaSize(), []);
+
   useEffect(() => {
     if (!defaultValues) return;
     const typeNumber = getTypeNumber(defaultValues.type);
@@ -105,8 +115,10 @@ export default function JobForm(props: JobFormProps) {
         />
       </label>
       <textarea
+        onChange={increaseTextAreaSize}
         ref={descriptionRef}
-        className="textarea textarea-bordered min-h-60"
+        className="textarea textarea-bordered overflow-y-hidden"
+        rows={4}
         placeholder="Job description..."
         defaultValue={defaultValues?.description}
       ></textarea>
