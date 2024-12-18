@@ -63,10 +63,10 @@ export default function Manage() {
               <td>{new Date(job.created).toDateString()}</td>
               <td>{new Date(job.deadline).toDateString()}</td>
               <td>
-                <button className="btn text-base btn-sm btn-outline rounded-r-none">
+                <button className="btn text-base btn-sm btn-outline lg:rounded-r-none">
                   <IoMdSettings />
                 </button>
-                <button className="btn text-base btn-sm btn-outline rounded-l-none">
+                <button className="btn text-base btn-sm btn-outline lg:rounded-l-none">
                   <MdDelete />
                 </button>
               </td>

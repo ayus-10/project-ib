@@ -3,20 +3,16 @@
 import { DARK, LIGHT } from "@/constants";
 import useThemes from "@/hooks/useThemes";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 import { FaUser } from "react-icons/fa";
-import UserProfileCard from "./UserProfileCard";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { setSuccessMessage } from "@/redux/slices/alertSlice";
+import { removeAuthenticatedUser } from "@/redux/slices/authenticatedUserSlice";
+import logoutUser from "@/requests/logoutUser";
 
 export default function NavBar() {
   const [theme, setTheme] = useThemes();
-
-  const { email, fullName } = useAppSelector(
-    (state) => state.authenticatedUser
-  );
-
-  const [showProfileCard, setShowProfileCard] = useState(false);
 
   const pathname = usePathname();
 
@@ -46,7 +42,7 @@ export default function NavBar() {
   }
 
   return (
-    <div className="navbar bg-base-100 relative">
+    <div className="navbar bg-base-100 border-b shadow-md border-base-300 relative">
       <div className="navbar-start">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
@@ -121,18 +117,88 @@ export default function NavBar() {
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </label>
-        <button
-          className="ml-4 btn btn-circle"
-          onClick={() => setShowProfileCard(!showProfileCard)}
-        >
-          <FaUser />
-        </button>
+        <UserProfile />
       </div>
-      {showProfileCard && email && fullName ? (
-        <div className="absolute right-0 top-[100%]">
-          <UserProfileCard email={email} fullName={fullName} />
-        </div>
+    </div>
+  );
+}
+
+function UserProfile() {
+  const [showProfileCard, setShowProfileCard] = useState(false);
+
+  const pathname = usePathname();
+
+  const router = useRouter();
+
+  const { email, fullName } = useAppSelector(
+    (state) => state.authenticatedUser
+  );
+
+  const isLoggedIn = !!email && !!fullName;
+
+  if (pathname !== "/") return null;
+
+  return (
+    <>
+      <button
+        className="ml-4 btn btn-outline btn-square btn-sm"
+        onClick={() =>
+          isLoggedIn
+            ? setShowProfileCard((prev) => !prev)
+            : router.push("/signin")
+        }
+      >
+        <FaUser />
+      </button>
+      {showProfileCard && isLoggedIn ? (
+        <UserProfileCard email={email} fullName={fullName} />
       ) : null}
+    </>
+  );
+}
+
+interface UserProfileCardProps {
+  email: string;
+  fullName: string;
+}
+
+function UserProfileCard({ email, fullName }: UserProfileCardProps) {
+  const [confirmLogout, setConfirmLogout] = useState(false);
+
+  const dispatch = useAppDispatch();
+
+  function handleLogout() {
+    if (confirmLogout) {
+      logoutUser().then(() => {
+        dispatch(removeAuthenticatedUser());
+        dispatch(setSuccessMessage("Logged out successfully."));
+      });
+    } else {
+      setConfirmLogout(true);
+    }
+  }
+
+  return (
+    <div className="absolute right-1 top-full mt-1">
+      <div className="card bg-base-100 w-48 h-fit shadow-xl">
+        <div className="card-body">
+          <div className="avatar placeholder">
+            <div className="bg-base-300 text-base-400 w-16 mx-auto rounded-full">
+              <span className="text-3xl">{fullName.charAt(0)}</span>
+            </div>
+          </div>
+          <p className="font-semibold text-center">{fullName}</p>
+          <p className="font-semibold text-center">{email}</p>
+          <button
+            className={`btn btn-sm ${
+              confirmLogout ? "btn-warning" : "btn-primary"
+            }`}
+            onClick={handleLogout}
+          >
+            {confirmLogout ? "Confirm" : "Log out"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

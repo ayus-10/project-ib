@@ -28,13 +28,13 @@ export default function AdminLayout({
 
         {children}
       </div>
-      <div className="drawer-side">
+      <div className="drawer-side border-r shadow-md border-base-300">
         <label
           htmlFor="my-drawer-2"
           aria-label="close sidebar"
           className="drawer-overlay"
         ></label>
-        <ul className="menu bg-base-300 text-base-content min-h-full w-80 p-4">
+        <ul className="menu bg-base-100 text-base-content min-h-full w-80 p-4">
           {links.map((link) => (
             <li key={link.path}>
               <Link href={link.path}>{link.title}</Link>
