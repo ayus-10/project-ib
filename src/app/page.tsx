@@ -69,23 +69,31 @@ function JobCard({ job }: { job: JobListing }) {
       <div className="card-body">
         <h2 className="card-title">{job.title}</h2>
         <span className="font-semibold flex items-center gap-1">
-          <RiBuilding2Fill />
+          <span className="flex-shrink-0">
+            <RiBuilding2Fill />
+          </span>
           <span>{job.company}</span>
         </span>
         <span className="font-semibold flex items-center gap-1">
-          <FaLocationDot />
+          <span className="flex-shrink-0">
+            <FaLocationDot />
+          </span>
           <span>
             {job.location} {job.type !== "REMOTE" ? `(${job.type})` : null}
           </span>
         </span>
         <span className="font-semibold flex items-center gap-1">
-          <TbClockHour2Filled />
+          <span className="flex-shrink-0">
+            <TbClockHour2Filled />
+          </span>
           <span>
             Listed {new Date(job.created).toISOString().split("T")[0]}
           </span>
         </span>
         <span className="font-semibold flex items-center gap-1">
-          <TbClockHour10Filled />
+          <span className="flex-shrink-0">
+            <TbClockHour10Filled />
+          </span>
           <span>
             Deadline {new Date(job.deadline).toISOString().split("T")[0]}
           </span>

@@ -20,7 +20,7 @@ export default function AdminLayout({
       <div className="drawer-content flex flex-col items-center justify-center">
         <label
           htmlFor="my-drawer-2"
-          className="flex items-center gap-1 btn drawer-button lg:hidden bg-transparent border-transparent hover:bg-transparent hover:border-transparent focus:bg-transparent focus:border-transparent text-base"
+          className="flex items-center gap-1 btn drawer-button lg:hidden btn-ghost text-base"
         >
           <span>Options</span>
           <FaChevronRight />
