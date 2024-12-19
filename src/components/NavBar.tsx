@@ -42,9 +42,13 @@ export default function NavBar() {
   }
 
   return (
-    <div className="navbar bg-base-100 border-b shadow-md border-base-300 relative">
+    <div className="navbar bg-base-100 border-b shadow-md h-16 border-base-300 relative">
       <div className="navbar-start">
-        <div className="dropdown">
+        <div
+          className={
+            pathname.startsWith("/admin") ? "hidden lg:dropdown" : "dropdown"
+          }
+        >
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
             <svg
               xmlns="http://www.w3.org/2000/svg"

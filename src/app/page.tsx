@@ -65,24 +65,25 @@ export default function Home() {
 
 function JobCard({ job }: { job: JobListing }) {
   return (
-    <div className="card my-4 mx-auto bg-base-100 shadow-xl w-2/5 min-w-72 md:min-w-96">
+    <div className="card my-4 mx-auto bg-base-100 shadow-xl w-64 sm:w-80 md:w-[36rem] lg:w-[40rem]">
       <div className="card-body">
         <h2 className="card-title">{job.title}</h2>
-        <span className="font-semibold flex items-center gap-1">
+        <span className="font-semibold text-sm md:text-base flex items-center gap-1">
           <span className="flex-shrink-0">
             <RiBuilding2Fill />
           </span>
           <span>{job.company}</span>
         </span>
-        <span className="font-semibold flex items-center gap-1">
+        <span className="font-semibold text-sm md:text-base flex items-center gap-1">
           <span className="flex-shrink-0">
             <FaLocationDot />
           </span>
           <span>
-            {job.location} {job.type !== "REMOTE" ? `(${job.type})` : null}
+            {job.location}
+            {job.type !== "REMOTE" ? ` (${job.type})` : null}
           </span>
         </span>
-        <span className="font-semibold flex items-center gap-1">
+        <span className="font-semibold text-sm md:text-base flex items-center gap-1">
           <span className="flex-shrink-0">
             <TbClockHour2Filled />
           </span>
@@ -90,7 +91,7 @@ function JobCard({ job }: { job: JobListing }) {
             Listed {new Date(job.created).toISOString().split("T")[0]}
           </span>
         </span>
-        <span className="font-semibold flex items-center gap-1">
+        <span className="font-semibold text-sm md:text-base flex items-center gap-1">
           <span className="flex-shrink-0">
             <TbClockHour10Filled />
           </span>
@@ -98,7 +99,7 @@ function JobCard({ job }: { job: JobListing }) {
             Deadline {new Date(job.deadline).toISOString().split("T")[0]}
           </span>
         </span>
-        <p className="line-clamp-4">{job.description}</p>
+        <p className="line-clamp-4 text-sm md:text-base">{job.description}</p>
         <div className="card-actions justify-end">
           <button className="btn">
             <GoStar />
