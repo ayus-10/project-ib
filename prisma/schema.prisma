@@ -14,6 +14,7 @@ model User {
   password String
   role Role @default(USER)
   jobs Job[]
+  favorites Favorite[]
 }
 
 enum Role {
@@ -38,4 +39,13 @@ model Job {
   created DateTime
   deadline DateTime
   type JobType @default(ONSITE)
+  favoriteBy Favorite[]
+}
+
+model Favorite {
+  userId Int
+  jobId Int
+  @@id([userId, jobId])
+  user User @relation(fields: [userId], references: [id])
+  job Job @relation(fields: [jobId], references: [id])
 }
