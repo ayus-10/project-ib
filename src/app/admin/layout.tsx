@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { FaChevronRight } from "react-icons/fa";
 
 export default function AdminLayout({
   children,

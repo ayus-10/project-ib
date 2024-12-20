@@ -120,28 +120,30 @@ export default function Edit() {
     }
   }
 
-  return jobListing ? (
-    <div className="w-full p-8 bg-base-200 min-h-screen">
-      <div>
-        <h1 className="text-2xl font-bold">Edit: {jobListing.title}</h1>
-        <p>
-          Please feel free to review the content carefully, make any changes or
-          adjustments and then click the submit button to finalize your updates!
-        </p>
+  if (jobListing)
+    return (
+      <div className="w-full p-8 bg-base-200 min-h-screen">
+        <div>
+          <h1 className="text-2xl font-bold">Edit: {jobListing.title}</h1>
+          <p>
+            Please feel free to review the content carefully, make any changes
+            or adjustments and then click the submit button to finalize your
+            updates!
+          </p>
+        </div>
+        <JobForm
+          companyRef={companyInputRef}
+          deadlineRef={deadlineInputRef}
+          descriptionRef={descriptionInputRef}
+          handleSubmit={handleSubmit}
+          jobType={jobType}
+          locationRef={locationInputRef}
+          setJobType={setJobType}
+          titleRef={titleInputRef}
+          defaultValues={jobListing}
+        />
       </div>
-      <JobForm
-        companyRef={companyInputRef}
-        deadlineRef={deadlineInputRef}
-        descriptionRef={descriptionInputRef}
-        handleSubmit={handleSubmit}
-        jobType={jobType}
-        locationRef={locationInputRef}
-        setJobType={setJobType}
-        titleRef={titleInputRef}
-        defaultValues={jobListing}
-      />
-    </div>
-  ) : (
-    <LoadingSpinner />
-  );
+    );
+
+  return <LoadingSpinner />;
 }

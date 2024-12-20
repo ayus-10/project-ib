@@ -183,7 +183,7 @@ function UserProfileCard({ email, fullName }: UserProfileCardProps) {
   }
 
   return (
-    <div className="absolute right-1 top-full mt-1">
+    <div className="absolute right-1 top-full mt-1 z-[100]">
       <div className="card bg-base-100 w-48 h-fit shadow-xl">
         <div className="card-body">
           <div className="avatar placeholder">
