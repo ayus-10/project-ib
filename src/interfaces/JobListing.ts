@@ -8,3 +8,7 @@ export interface JobListing {
   created: string;
   deadline: string;
 }
+
+export interface JobListingWithFavorite extends JobListing {
+  isFavorite?: boolean;
+}
