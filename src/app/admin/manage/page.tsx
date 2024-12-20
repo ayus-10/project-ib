@@ -24,16 +24,23 @@ export default function Manage() {
 
   useEffect(() => {
     async function getJobs() {
-      try {
-        await refreshTokens();
-        const res = await axios.get<GetJobListings>("/api/job/all", {
+      const sendRequest = () =>
+        axios.get<GetJobListings>("/api/job/created", {
           withCredentials: true,
           headers: {
             Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
           },
         });
+
+      try {
+        const res = await sendRequest();
         setCreatedJobs(res.data.jobs);
       } catch (error) {
+        if (axios.isAxiosError(error)) {
+          await refreshTokens();
+          const newRes = await sendRequest();
+          setCreatedJobs(newRes.data.jobs);
+        }
         console.log("Unable to fetch jobs: ", error);
       }
     }
