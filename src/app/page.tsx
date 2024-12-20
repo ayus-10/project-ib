@@ -14,6 +14,8 @@ import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [loadingJobs, setLoadingJobs] = useState(false);
+
   const [jobs, setJobs] = useState<JobListingWithFavorite[]>([]);
 
   const [favoriteJobs, setFavoriteJobs] = useState<JobListingWithFavorite[]>(
@@ -41,6 +43,7 @@ export default function Home() {
   useEffect(() => {
     async function getJobs() {
       try {
+        setLoadingJobs(true);
         await refreshTokens();
         const res = await sendRequest(false);
         setJobs(res.data.jobs);
@@ -50,6 +53,8 @@ export default function Home() {
           dispatch(setErrorMessage(error?.response?.data.error));
         }
         console.log("Unable to fetch for jobs: ", error);
+      } finally {
+        setLoadingJobs(false);
       }
     }
 
@@ -59,6 +64,7 @@ export default function Home() {
   useEffect(() => {
     async function getFavoriteJobs() {
       try {
+        setLoadingJobs(true);
         await refreshTokens();
         const res = await sendRequest(true);
         setFavoriteJobs(res.data.jobs);
@@ -68,16 +74,21 @@ export default function Home() {
           dispatch(setErrorMessage(error?.response?.data.error));
         }
         console.log("Unable to fetch for jobs: ", error);
+      } finally {
+        setLoadingJobs(false);
       }
     }
 
     if (favoritesFilter) getFavoriteJobs();
   }, [favoritesFilter, sendRequest]);
 
+  if (loadingJobs) return <LoadingSpinner />;
+
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col items-center p-2">
       <select
         className="select select-bordered ml-auto"
+        value={favoritesFilter ? 2 : 1}
         onChange={(e) => setFavoritesFilter(e.target.value === "2")}
       >
         <option value={1}>All jobs</option>
@@ -87,7 +98,11 @@ export default function Home() {
         {favoritesFilter
           ? favoriteJobs.map((j) => <JobCard job={j} key={j.id} />)
           : jobs.map((j) => <JobCard job={j} key={j.id} />)}
-        {jobs.length === 0 ? <LoadingSpinner /> : null}
+        {favoritesFilter && favoriteJobs.length === 0 ? (
+          <span className="font-semibold">
+            No jobs added to favorites list!
+          </span>
+        ) : null}
       </div>
       <div className="join py-4">
         <button

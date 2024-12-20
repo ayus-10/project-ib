@@ -49,7 +49,7 @@ export default function Manage() {
   }, []);
 
   function handleEdit(id: string) {
-    router.push("/admin/edit?jobId=" + id);
+    router.push("/admin/edit?id=" + id);
   }
 
   function handleDelete(id: string) {

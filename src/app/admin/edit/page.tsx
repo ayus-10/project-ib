@@ -23,7 +23,7 @@ export default function Edit() {
 
   const dispatch = useAppDispatch();
 
-  const jobId = useSearchParams().get("jobId");
+  const jobId = useSearchParams().get("id");
 
   const router = useRouter();
 

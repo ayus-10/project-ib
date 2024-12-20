@@ -1,9 +1,11 @@
 import { ACCESS_TOKEN } from "@/constants";
 import { JobListingWithFavorite } from "@/interfaces/JobListing";
 import { useAppDispatch } from "@/redux/hooks";
-import { setErrorMessage } from "@/redux/slices/alertSlice";
+import { setErrorMessage, setSuccessMessage } from "@/redux/slices/alertSlice";
 import refreshTokens from "@/requests/refreshTokens";
+import { formattedDate, formattedLocation } from "@/utils/formatJobDetails";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FaLocationDot } from "react-icons/fa6";
 import { GoStar, GoStarFill } from "react-icons/go";
@@ -16,13 +18,9 @@ const DELETE = "DELETE";
 export default function JobCard({ job }: { job: JobListingWithFavorite }) {
   const [currentJob, setCurrentJob] = useState(job);
 
-  const formattedLocation = (location: string, type: string) =>
-    `${location}${type !== "REMOTE" ? ` (${type})` : ""}`;
-
-  const formattedDate = (date: string) =>
-    new Date(date).toISOString().split("T")[0];
-
   const dispatch = useAppDispatch();
+
+  const router = useRouter();
 
   function sendFavoriteRequest(method: "POST" | "DELETE") {
     const url = "/api/favorite?jobId=" + currentJob.id;
@@ -39,18 +37,20 @@ export default function JobCard({ job }: { job: JobListingWithFavorite }) {
 
   async function addFavorite() {
     try {
-      await sendFavoriteRequest(POST);
+      const res = await sendFavoriteRequest(POST);
       setCurrentJob((prev) => {
         return { ...prev, isFavorite: true };
       });
+      dispatch(setSuccessMessage(res.data.message));
     } catch (error) {
       if (axios.isAxiosError(error)) {
         try {
           await refreshTokens();
-          await sendFavoriteRequest(POST);
+          const newRes = await sendFavoriteRequest(POST);
           setCurrentJob((prev) => {
             return { ...prev, isFavorite: true };
           });
+          dispatch(setSuccessMessage(newRes.data.message));
         } catch (newError) {
           if (axios.isAxiosError(newError)) {
             dispatch(setErrorMessage(newError?.response?.data.error));
@@ -62,18 +62,20 @@ export default function JobCard({ job }: { job: JobListingWithFavorite }) {
 
   async function removeFavorite() {
     try {
-      await sendFavoriteRequest(DELETE);
+      const res = await sendFavoriteRequest(DELETE);
       setCurrentJob((prev) => {
         return { ...prev, isFavorite: false };
       });
+      dispatch(setSuccessMessage(res.data.message));
     } catch (error) {
       if (axios.isAxiosError(error)) {
         try {
           await refreshTokens();
-          await sendFavoriteRequest(DELETE);
+          const newRes = await sendFavoriteRequest(DELETE);
           setCurrentJob((prev) => {
             return { ...prev, isFavorite: false };
           });
+          dispatch(setSuccessMessage(newRes.data.message));
         } catch (newError) {
           if (axios.isAxiosError(newError)) {
             dispatch(setErrorMessage(newError?.response?.data.error));
@@ -123,7 +125,12 @@ export default function JobCard({ job }: { job: JobListingWithFavorite }) {
           >
             {currentJob.isFavorite ? <GoStarFill /> : <GoStar />}
           </button>
-          <button className="btn btn-primary">View more</button>
+          <button
+            className="btn btn-primary"
+            onClick={() => router.push("/job?id=" + currentJob.id)}
+          >
+            Apply
+          </button>
         </div>
       </div>
     </div>
