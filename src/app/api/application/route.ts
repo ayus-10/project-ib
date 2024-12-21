@@ -72,6 +72,7 @@ export async function GET(request: Request) {
       select: {
         applicant: { select: { email: true, fullName: true } },
         coverLetter: true,
+        id: true,
       },
       where: { job: { userId }, jobId },
     });

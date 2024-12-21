@@ -72,44 +72,46 @@ export default function Manage() {
   }
 
   return (
-    <div className="overflow-x-auto h-full py-4">
-      <table className="table table-zebra table-fixed">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Company</th>
-            <th>Created</th>
-            <th>Deadline</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {createdJobs.map((job, i) => (
-            <tr key={job.id}>
-              <th>{i + 1}</th>
-              <td>{job.title}</td>
-              <td>{job.company}</td>
-              <td>{new Date(job.created).toDateString()}</td>
-              <td>{new Date(job.deadline).toDateString()}</td>
-              <td>
-                <button
-                  className="btn text-base btn-sm btn-outline lg:rounded-r-none"
-                  onClick={() => handleEdit(job.id)}
-                >
-                  <IoMdSettings />
-                </button>
-                <button
-                  className="btn text-base btn-sm btn-outline lg:rounded-l-none"
-                  onClick={() => handleDelete(job.id)}
-                >
-                  <MdDelete />
-                </button>
-              </td>
+    <div className="w-full h-full py-4">
+      <div className="overflow-x-auto">
+        <table className="table table-zebra md:table-fixed">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Company</th>
+              <th>Created</th>
+              <th>Deadline</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {createdJobs.map((job) => (
+              <tr key={job.id}>
+                <th>{job.id}</th>
+                <td>{job.title}</td>
+                <td>{job.company}</td>
+                <td>{new Date(job.created).toDateString()}</td>
+                <td>{new Date(job.deadline).toDateString()}</td>
+                <td>
+                  <button
+                    className="btn text-base btn-sm btn-outline lg:rounded-r-none"
+                    onClick={() => handleEdit(job.id)}
+                  >
+                    <IoMdSettings />
+                  </button>
+                  <button
+                    className="btn text-base btn-sm btn-outline lg:rounded-l-none"
+                    onClick={() => handleDelete(job.id)}
+                  >
+                    <MdDelete />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

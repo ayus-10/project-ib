@@ -81,7 +81,7 @@ export default function JobForm(props: JobFormProps) {
       </label>
       <select
         className="select select-bordered w-full"
-        value={getTypeNumber(defaultValues?.type) ?? jobType ?? 0}
+        defaultValue={getTypeNumber(defaultValues?.type) ?? jobType ?? 0}
         onChange={(e) => setJobType(parseInt(e.target.value))}
       >
         <option value={0} disabled>
