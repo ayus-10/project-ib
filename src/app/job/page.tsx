@@ -1,8 +1,12 @@
 "use client";
 
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { ACCESS_TOKEN } from "@/constants";
+import { CreateApplicationDTO } from "@/interfaces/CreateApplicationDTO";
 import { JobListing } from "@/interfaces/JobListing";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { setErrorMessage, setSuccessMessage } from "@/redux/slices/alertSlice";
+import refreshTokens from "@/requests/refreshTokens";
 import { formattedDate } from "@/utils/formatJobDetails";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -30,6 +34,8 @@ export default function Job() {
     undefined
   );
 
+  const dispatch = useAppDispatch();
+
   const resumeInputRef = useRef<HTMLInputElement>(null);
   const letterInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -49,6 +55,44 @@ export default function Job() {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
+
+    const jobIdInt = parseInt(jobId ?? "");
+
+    if (!letterInputRef.current) return;
+    if (Number.isNaN(jobIdInt)) return;
+
+    submitApplication({
+      coverLetter: letterInputRef.current.value,
+      jobId: jobIdInt,
+    });
+  }
+
+  async function submitApplication(payload: CreateApplicationDTO) {
+    const sendRequest = () =>
+      axios.post("/api/application", payload, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
+        },
+      });
+
+    try {
+      const res = await sendRequest();
+      dispatch(setSuccessMessage(res.data.message));
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        try {
+          await refreshTokens();
+          const newRes = await sendRequest();
+          dispatch(setSuccessMessage(newRes.data.message));
+        } catch (newError) {
+          if (axios.isAxiosError(newError)) {
+            dispatch(setErrorMessage(newError?.response?.data.error));
+          }
+        }
+      }
+      console.log("Unable to submit application: ", error);
+    }
   }
 
   if (jobDetails && isLoggedIn)

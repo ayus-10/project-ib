@@ -10,6 +10,7 @@ import {
 import {
   areJobDetailsValid,
   hasMinimumWords,
+  isValidNumber,
 } from "@/utils/jobDetailsValidation";
 import { PrismaClient } from "@prisma/client";
 
@@ -116,7 +117,7 @@ export async function PATCH(request: Request) {
       return BadRequest("The description must contain atleast 50 words.");
     }
 
-    if (!jobId) {
+    if (!isValidNumber(jobId)) {
       return BadRequest("Invalid job ID.");
     }
 

@@ -1,5 +1,7 @@
-const isValidString = (data: unknown) =>
+export const isValidString = (data: unknown) =>
   typeof data === "string" && data.trim() !== "";
+
+export const isValidNumber = (data: unknown) => typeof data === "number";
 
 const isValidDate = (date: unknown) =>
   typeof date === "string" && !Number.isNaN(Date.parse(date));

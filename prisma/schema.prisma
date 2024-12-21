@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
-  fullName  String
-  password  String
-  role      Role       @default(USER)
-  jobs      Job[]
-  favorites Favorite[]
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  fullName     String
+  password     String
+  role         Role          @default(USER)
+  jobs         Job[]
+  favorites    Favorite[]
+  applications Application[]
 }
 
 enum Role {
@@ -29,17 +30,18 @@ enum JobType {
 }
 
 model Job {
-  id          Int        @id @default(autoincrement())
-  title       String     @db.Text
-  description String     @db.Text
-  company     String     @db.Text
-  location    String     @db.Text
+  id          Int           @id @default(autoincrement())
+  title       String        @db.Text
+  description String        @db.Text
+  company     String        @db.Text
+  location    String        @db.Text
   userId      Int
-  user        User       @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
   created     DateTime
   deadline    DateTime
-  type        JobType    @default(ONSITE)
+  type        JobType       @default(ONSITE)
   favoriteBy  Favorite[]
+  appliedBy   Application[]
 }
 
 model Favorite {
@@ -49,4 +51,13 @@ model Favorite {
   job    Job  @relation(fields: [jobId], references: [id])
 
   @@id([userId, jobId])
+}
+
+model Application {
+  id          Int    @id @default(autoincrement())
+  applicantId Int
+  jobId       Int
+  coverLetter String @db.Text
+  applicant   User   @relation(fields: [applicantId], references: [id])
+  job         Job    @relation(fields: [jobId], references: [id])
 }
