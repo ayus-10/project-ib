@@ -5,10 +5,13 @@ import ReduxProvider from "@/providers/ReduxProvider";
 import ToastAlert from "@/components/ToastAlert";
 import AuthGuard from "@/guards/AuthGuard";
 import AdminGuard from "@/guards/AdminGuard";
+import { Suspense } from "react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export const metadata: Metadata = {
   title: "iBerozgar",
-  description: "Where berozgari shines!",
+  description:
+    "A Job Listings Application where users can browse jobs, view details, and apply for positions.",
 };
 
 export default function RootLayout({
@@ -22,7 +25,9 @@ export default function RootLayout({
         <body>
           <NavBar />
           <AuthGuard>
-            <AdminGuard>{children}</AdminGuard>
+            <AdminGuard>
+              <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
+            </AdminGuard>
           </AuthGuard>
           <ToastAlert />
         </body>
