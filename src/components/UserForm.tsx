@@ -35,7 +35,7 @@ export default function UserForm(props: UserFormProps) {
     <div className="hero bg-base-200 min-h-[calc(100vh-4rem)]">
       <div className="hero-content flex-col lg:flex-row">
         <div className="text-center lg:text-left">
-          <h1 className="text-5xl font-bold">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold">
             {formType === SIGNIN ? "Welcome back👋" : "Join now🎉"}
           </h1>
           <p className="py-6">

@@ -86,7 +86,7 @@ export default function JobCard({ job }: { job: JobListingWithFavorite }) {
   }
 
   return (
-    <div className="card my-4 mx-auto bg-base-100 shadow-xl w-64 sm:w-80 md:w-[36rem] lg:w-[40rem]">
+    <div className="card my-4 mx-auto bg-base-100 shadow-xl w-4/5 md:w-[36rem] lg:w-[40rem]">
       <div className="card-body">
         <h2 className="card-title">{currentJob.title}</h2>
         <span className="font-semibold text-sm md:text-base flex items-center gap-1">

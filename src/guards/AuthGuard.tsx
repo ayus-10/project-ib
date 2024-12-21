@@ -14,7 +14,8 @@ export default function AuthGuard({
 }>) {
   const pathname = usePathname();
 
-  const isProtectedPage = pathname.startsWith("/admin");
+  const isProtectedPage =
+    pathname.startsWith("/admin") || pathname.startsWith("/job");
 
   const router = useRouter();
 

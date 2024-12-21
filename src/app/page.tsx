@@ -8,6 +8,7 @@ import { useAppDispatch } from "@/redux/hooks";
 import { setErrorMessage } from "@/redux/slices/alertSlice";
 import refreshTokens from "@/requests/refreshTokens";
 import axios from "axios";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
@@ -22,7 +23,21 @@ export default function Home() {
     []
   );
 
+  const router = useRouter();
+
+  const searchParams = useSearchParams();
+
   const [favoritesFilter, setFavoritesFilter] = useState(false);
+
+  useEffect(
+    () => router.push("/?favorites=" + favoritesFilter),
+    [favoritesFilter, router]
+  );
+
+  useEffect(
+    () => setFavoritesFilter(searchParams.get("favorites") === "true"),
+    [searchParams]
+  );
 
   const dispatch = useAppDispatch();
 

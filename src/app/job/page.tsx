@@ -2,6 +2,7 @@
 
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { JobListing } from "@/interfaces/JobListing";
+import { useAppSelector } from "@/redux/hooks";
 import { formattedDate } from "@/utils/formatJobDetails";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -19,12 +20,16 @@ export default function Job() {
 
   const router = useRouter();
 
+  const { email, fullName } = useAppSelector(
+    (state) => state.authenticatedUser
+  );
+
+  const isLoggedIn = !!email && !!fullName;
+
   const [jobDetails, setJobDetails] = useState<JobListing | undefined>(
     undefined
   );
 
-  const fullNameInputRef = useRef<HTMLInputElement>(null);
-  const emailInputRef = useRef<HTMLInputElement>(null);
   const resumeInputRef = useRef<HTMLInputElement>(null);
   const letterInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -46,7 +51,7 @@ export default function Job() {
     e.preventDefault();
   }
 
-  if (jobDetails)
+  if (jobDetails && isLoggedIn)
     return (
       <div className="flex flex-col gap-4 md:px-8 px-4 py-6 md:flex-row h-[calc(100vh-4rem)]">
         <div className="md:w-1/2 lg:w-2/3">
@@ -119,18 +124,18 @@ export default function Job() {
           <label className="form-control w-full">
             <div className="label">Full name</div>
             <input
-              ref={fullNameInputRef}
               type="text"
-              placeholder="John Cena"
+              value={fullName}
+              disabled
               className="input input-bordered w-full"
             />
           </label>
           <label className="form-control w-full">
             <div className="label">Email</div>
             <input
-              ref={emailInputRef}
               type="text"
-              placeholder="johncena@example.com"
+              value={email}
+              disabled
               className="input input-bordered w-full"
             />
           </label>
