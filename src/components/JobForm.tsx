@@ -17,6 +17,7 @@ interface JobFormProps {
   jobType: number | null;
   setJobType: Dispatch<SetStateAction<number | null>>;
   defaultValues?: JobListing;
+  isLoading?: boolean;
 }
 
 export default function JobForm(props: JobFormProps) {
@@ -30,6 +31,7 @@ export default function JobForm(props: JobFormProps) {
     jobType,
     setJobType,
     defaultValues,
+    isLoading,
   } = props;
 
   const getTypeNumber = (type: string | undefined) =>
@@ -122,7 +124,12 @@ export default function JobForm(props: JobFormProps) {
         placeholder="Job description..."
         defaultValue={defaultValues?.description}
       ></textarea>
-      <button className="btn btn-primary max-w-xs">Submit</button>
+      <button className="btn btn-primary max-w-xs">
+        <span
+          className={isLoading ? "loading loading-dots loading-lg" : "hidden"}
+        />
+        {isLoading ? null : "Submit"}
+      </button>
     </form>
   );
 }

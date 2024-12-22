@@ -23,6 +23,8 @@ export default function Create() {
 
   const router = useRouter();
 
+  const [submitting, setSubmitting] = useState(false);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
@@ -59,6 +61,7 @@ export default function Create() {
       });
 
     try {
+      setSubmitting(true);
       const res = await sendRequest();
       dispatch(setSuccessMessage(res.data.message));
       router.push("/admin/manage");
@@ -77,6 +80,8 @@ export default function Create() {
           console.log("Unable to create job: ", newError);
         }
       }
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -98,6 +103,7 @@ export default function Create() {
         locationRef={locationInputRef}
         setJobType={setJobType}
         titleRef={titleInputRef}
+        isLoading={submitting}
       />
     </div>
   );

@@ -29,6 +29,8 @@ export default function Edit() {
 
   const [jobType, setJobType] = useState<null | number>(null);
 
+  const [submitting, setSubmitting] = useState(false);
+
   const titleInputRef = useRef<HTMLInputElement>(null);
   const companyInputRef = useRef<HTMLInputElement>(null);
   const locationInputRef = useRef<HTMLInputElement>(null);
@@ -98,6 +100,7 @@ export default function Edit() {
       });
 
     try {
+      setSubmitting(true);
       const res = await sendRequest();
       dispatch(setSuccessMessage(res.data.message));
       router.push("/admin/manage");
@@ -116,6 +119,8 @@ export default function Edit() {
           console.log("Unable to update job: ", newError);
         }
       }
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -140,6 +145,7 @@ export default function Edit() {
           setJobType={setJobType}
           titleRef={titleInputRef}
           defaultValues={jobListing}
+          isLoading={submitting}
         />
       </div>
     );

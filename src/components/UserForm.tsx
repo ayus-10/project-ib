@@ -6,13 +6,14 @@ import { SIGNIN, SIGNUP } from "../constants";
 type FormType = "SIGNIN" | "SIGNUP";
 
 interface UserFormProps {
+  isLoading?: boolean;
   formType: FormType;
   handleSignin?: (payload: SigninPayload) => Promise<void>;
   handleSignup?: (payload: SignupPayload) => Promise<void>;
 }
 
 export default function UserForm(props: UserFormProps) {
-  const { formType, handleSignin, handleSignup } = props;
+  const { formType, handleSignin, handleSignup, isLoading } = props;
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -98,7 +99,12 @@ export default function UserForm(props: UserFormProps) {
             ) : null}
             <div className="form-control mt-6">
               <button className="btn btn-primary">
-                {formType === SIGNUP ? "Sign up" : "Sign in"}
+                <span
+                  className={
+                    isLoading ? "loading loading-dots loading-lg" : "hidden"
+                  }
+                />
+                {isLoading ? null : formType === SIGNUP ? "Sign up" : "Sign in"}
               </button>
             </div>
           </form>

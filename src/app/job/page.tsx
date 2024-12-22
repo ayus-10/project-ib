@@ -34,6 +34,8 @@ export default function Job() {
     undefined
   );
 
+  const [submitting, setSubmitting] = useState(false);
+
   const dispatch = useAppDispatch();
 
   const resumeInputRef = useRef<HTMLInputElement>(null);
@@ -77,14 +79,17 @@ export default function Job() {
       });
 
     try {
+      setSubmitting(true);
       const res = await sendRequest();
       dispatch(setSuccessMessage(res.data.message));
+      router.push("/");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         try {
           await refreshTokens();
           const newRes = await sendRequest();
           dispatch(setSuccessMessage(newRes.data.message));
+          router.push("/");
         } catch (newError) {
           if (axios.isAxiosError(newError)) {
             dispatch(setErrorMessage(newError?.response?.data.error));
@@ -92,6 +97,8 @@ export default function Job() {
         }
       }
       console.log("Unable to submit application: ", error);
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -197,7 +204,14 @@ export default function Job() {
             rows={5}
             placeholder="Write a cover letter"
           ></textarea>
-          <button className="btn btn-primary">Submit</button>
+          <button className="btn btn-primary max-w-xs">
+            <span
+              className={
+                submitting ? "loading loading-dots loading-lg" : "hidden"
+              }
+            />
+            {submitting ? null : "Submit"}
+          </button>
         </form>
       </div>
     );

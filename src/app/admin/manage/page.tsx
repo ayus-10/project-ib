@@ -1,5 +1,6 @@
 "use client";
 
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { ACCESS_TOKEN } from "@/constants";
 import { JobListing } from "@/interfaces/JobListing";
 import { useAppDispatch } from "@/redux/hooks";
@@ -18,6 +19,8 @@ interface GetJobListings {
 export default function Manage() {
   const [createdJobs, setCreatedJobs] = useState<JobListing[]>([]);
 
+  const [loading, setLoading] = useState(false);
+
   const dispatch = useAppDispatch();
 
   const router = useRouter();
@@ -33,6 +36,7 @@ export default function Manage() {
         });
 
       try {
+        setLoading(true);
         const res = await sendRequest();
         setCreatedJobs(res.data.jobs);
       } catch (error) {
@@ -42,6 +46,8 @@ export default function Manage() {
           setCreatedJobs(newRes.data.jobs);
         }
         console.log("Unable to fetch jobs: ", error);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -71,47 +77,50 @@ export default function Manage() {
       .finally(() => router.push("/admin"));
   }
 
-  return (
-    <div className="w-full h-full py-4">
-      <div className="overflow-x-auto">
-        <table className="table table-zebra md:table-fixed">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Company</th>
-              <th>Created</th>
-              <th>Deadline</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {createdJobs.map((job) => (
-              <tr key={job.id}>
-                <th>{job.id}</th>
-                <td>{job.title}</td>
-                <td>{job.company}</td>
-                <td>{new Date(job.created).toDateString()}</td>
-                <td>{new Date(job.deadline).toDateString()}</td>
-                <td>
-                  <button
-                    className="btn text-base btn-sm btn-outline lg:rounded-r-none"
-                    onClick={() => handleEdit(job.id)}
-                  >
-                    <IoMdSettings />
-                  </button>
-                  <button
-                    className="btn text-base btn-sm btn-outline lg:rounded-l-none"
-                    onClick={() => handleDelete(job.id)}
-                  >
-                    <MdDelete />
-                  </button>
-                </td>
+  if (!loading)
+    return (
+      <div className="w-full h-full py-4">
+        <div className="overflow-x-auto">
+          <table className="table table-zebra md:table-fixed">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Created</th>
+                <th>Deadline</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {createdJobs.map((job) => (
+                <tr key={job.id}>
+                  <th>{job.id}</th>
+                  <td>{job.title}</td>
+                  <td>{job.company}</td>
+                  <td>{new Date(job.created).toDateString()}</td>
+                  <td>{new Date(job.deadline).toDateString()}</td>
+                  <td>
+                    <button
+                      className="btn text-base btn-sm btn-outline lg:rounded-r-none"
+                      onClick={() => handleEdit(job.id)}
+                    >
+                      <IoMdSettings />
+                    </button>
+                    <button
+                      className="btn text-base btn-sm btn-outline lg:rounded-l-none"
+                      onClick={() => handleDelete(job.id)}
+                    >
+                      <MdDelete />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  );
+    );
+
+  return <LoadingSpinner />;
 }
