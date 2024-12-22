@@ -68,3 +68,13 @@ export function validateJobDetails(data: JobDetails) {
     throw new BadRequestError("The description must contain atleast 50 words.");
   }
 }
+
+export function getPageNumberFromParams(request: Request) {
+  const pageNumber = parseInt(
+    new URL(request.url).searchParams.get("pageNumber") ?? ""
+  );
+  if (Number.isNaN(pageNumber)) {
+    throw new BadRequestError("Can not fetch without specifying limits.");
+  }
+  return pageNumber;
+}

@@ -42,16 +42,13 @@ export default function Home() {
   const dispatch = useAppDispatch();
 
   const sendRequest = useCallback(
-    (favoritesOnly: boolean) =>
-      axios.get(
-        `/api/job/all?pageNumber=${currentPage}&favoritesOnly=${favoritesOnly}`,
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
-          },
-        }
-      ),
+    (endpoint: "all" | "favorites") =>
+      axios.get(`/api/job/${endpoint}?pageNumber=${currentPage}`, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
+        },
+      }),
     [currentPage]
   );
 
@@ -60,10 +57,10 @@ export default function Home() {
       try {
         setLoadingJobs(true);
         await refreshTokens();
-        const res = await sendRequest(false);
+        const res = await sendRequest("all");
         setJobs(res.data.jobs);
       } catch (error) {
-        setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1));
+        setCurrentPage(1);
         if (axios.isAxiosError(error)) {
           dispatch(setErrorMessage(error?.response?.data.error));
         }
@@ -74,17 +71,17 @@ export default function Home() {
     }
 
     getJobs();
-  }, [sendRequest]);
+  }, [sendRequest, dispatch]);
 
   useEffect(() => {
     async function getFavoriteJobs() {
       try {
         setLoadingJobs(true);
         await refreshTokens();
-        const res = await sendRequest(true);
+        const res = await sendRequest("favorites");
         setFavoriteJobs(res.data.jobs);
       } catch (error) {
-        setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1));
+        setCurrentPage(1);
         if (axios.isAxiosError(error)) {
           dispatch(setErrorMessage(error?.response?.data.error));
         }
@@ -95,7 +92,7 @@ export default function Home() {
     }
 
     if (favoritesFilter) getFavoriteJobs();
-  }, [favoritesFilter, sendRequest]);
+  }, [favoritesFilter, sendRequest, dispatch]);
 
   if (loadingJobs) return <LoadingSpinner />;
 
