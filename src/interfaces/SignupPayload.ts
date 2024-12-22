@@ -1,6 +1,6 @@
-import { SigninPayload } from "./SigninPayload";
-
-export interface SignupPayload extends SigninPayload {
+export interface SignupPayload {
+  email: string;
+  password: string;
   fullName: string;
   isAdmin: boolean;
 }

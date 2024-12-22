@@ -6,5 +6,4 @@ export interface UpdateJobDTO {
   created: string;
   deadline: string;
   type: "REMOTE" | "HYBRID" | "ONSITE";
-  jobId: number;
 }

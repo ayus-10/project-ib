@@ -1,4 +1,3 @@
-// frontend
 export type Theme = "light" | "dark";
 export const THEME = "theme";
 export const LIGHT = "light";
@@ -8,9 +7,5 @@ export const SIGNUP = "SIGNUP";
 export const ACCESS_TOKEN = "ACCESS_TOKEN";
 export const SUCCESS = "SUCCESS";
 export const ERROR = "ERROR";
-
-// backend
-export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
-export const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 export const USER = "USER";
 export const ADMIN = "ADMIN";

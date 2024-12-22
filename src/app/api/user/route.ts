@@ -7,13 +7,9 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import jwt from "jsonwebtoken";
-import {
-  ACCESS_TOKEN_SECRET,
-  ADMIN,
-  REFRESH_TOKEN_SECRET,
-  USER,
-} from "@/constants";
+import { ADMIN, USER } from "@/constants";
 import { cookies } from "next/headers";
+import { getTokenSecrets } from "../helpers";
 
 const prisma = new PrismaClient();
 
@@ -27,11 +23,7 @@ interface CreateUserDTO {
 // create user
 export async function POST(request: Request) {
   try {
-    if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
-      throw new Error(
-        "Access or refresh token secrets not found in environments."
-      );
-    }
+    const [ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET] = getTokenSecrets();
 
     const { email, fullName, password, isAdmin } =
       (await request.json()) as CreateUserDTO;

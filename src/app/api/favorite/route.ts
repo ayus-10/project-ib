@@ -5,27 +5,19 @@ import {
   Unauthorized,
 } from "@/utils/httpResponses";
 import { PrismaClient } from "@prisma/client";
+import { getJobIdFromParams, getUserIdFromHeaders } from "../helpers";
+import { BadRequestError, UnauthorizedError } from "@/utils/customErrors";
 
 const prisma = new PrismaClient();
 
+// add job to favorites
 export async function POST(request: Request) {
   try {
-    const userId = parseInt(request.headers.get("x-id") ?? "");
+    const userId = getUserIdFromHeaders(request);
 
-    if (Number.isNaN(userId)) {
-      return Unauthorized("Please log in to continue.");
-    }
-
-    const jobId = parseInt(
-      new URL(request.url).searchParams.get("jobId") ?? ""
-    );
-
-    if (Number.isNaN(jobId)) {
-      return BadRequest("Invalid job ID.");
-    }
+    const jobId = getJobIdFromParams(request);
 
     const jobFound = await prisma.job.findFirst({ where: { id: jobId } });
-
     if (!jobFound) {
       return BadRequest("Invalid job ID.");
     }
@@ -34,25 +26,22 @@ export async function POST(request: Request) {
 
     return Ok("Job added to favorites list.");
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return Unauthorized(error.message);
+    }
+    if (error instanceof BadRequestError) {
+      return BadRequest(error.message);
+    }
     return InternalServerError(error);
   }
 }
 
+// remove job from favorites
 export async function DELETE(request: Request) {
   try {
-    const userId = parseInt(request.headers.get("x-id") ?? "");
+    const userId = getUserIdFromHeaders(request);
 
-    if (Number.isNaN(userId)) {
-      return Unauthorized("Please log in to continue.");
-    }
-
-    const jobId = parseInt(
-      new URL(request.url).searchParams.get("jobId") ?? ""
-    );
-
-    if (Number.isNaN(jobId)) {
-      return BadRequest("Invalid job ID.");
-    }
+    const jobId = getJobIdFromParams(request);
 
     await prisma.favorite.delete({
       where: { userId_jobId: { jobId, userId } },
@@ -60,6 +49,12 @@ export async function DELETE(request: Request) {
 
     return Ok("Job removed from favorites list.");
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return Unauthorized(error.message);
+    }
+    if (error instanceof BadRequestError) {
+      return BadRequest(error.message);
+    }
     return InternalServerError(error);
   }
 }

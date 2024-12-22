@@ -1,17 +1,13 @@
 import { InternalServerError, Ok, Unauthorized } from "@/utils/httpResponses";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "@/constants";
 import { MyJwtPayload } from "@/interfaces/MyJwtPayload";
+import { getTokenSecrets } from "../../helpers";
 
 // refresh jwt tokens
 export async function POST() {
   try {
-    if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
-      throw new Error(
-        "Access or refresh token secrets not found in environments."
-      );
-    }
+    const [ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET] = getTokenSecrets();
 
     const cookieStore = await cookies();
     const refreshTokenCookie = cookieStore.get("refreshToken");

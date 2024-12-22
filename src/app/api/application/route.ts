@@ -10,17 +10,17 @@ import {
   hasMinimumWords,
   isValidNumber,
   isValidString,
-} from "@/utils/jobDetailsValidation";
+} from "@/utils/detailsValidation";
 import { PrismaClient } from "@prisma/client";
+import { getJobIdFromParams, getUserIdFromHeaders } from "../helpers";
+import { BadRequestError, UnauthorizedError } from "@/utils/customErrors";
 
 const prisma = new PrismaClient();
 
+// submit job application
 export async function POST(request: Request) {
   try {
-    const userId = parseInt(request.headers.get("x-id") ?? "");
-    if (Number.isNaN(userId)) {
-      return Unauthorized("Please log in to continue.");
-    }
+    const userId = getUserIdFromHeaders(request);
 
     const { coverLetter, jobId } =
       (await request.json()) as CreateApplicationDTO;
@@ -50,23 +50,19 @@ export async function POST(request: Request) {
 
     return Ok("Successfully applied for the job.");
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return Unauthorized(error.message);
+    }
     return InternalServerError(error);
   }
 }
 
+// get all applications for given user and job
 export async function GET(request: Request) {
   try {
-    const userId = parseInt(request.headers.get("x-id") ?? "");
-    if (Number.isNaN(userId)) {
-      return Unauthorized("Please log in to continue.");
-    }
+    const userId = getUserIdFromHeaders(request);
 
-    const jobId = parseInt(
-      new URL(request.url).searchParams.get("jobId") ?? ""
-    );
-    if (Number.isNaN(jobId)) {
-      return BadRequest("Invalid job ID.");
-    }
+    const jobId = getJobIdFromParams(request);
 
     const applications = await prisma.application.findMany({
       select: {
@@ -79,6 +75,12 @@ export async function GET(request: Request) {
 
     return Ok({ applications });
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return Unauthorized(error.message);
+    }
+    if (error instanceof BadRequestError) {
+      return BadRequest(error.message);
+    }
     return InternalServerError(error);
   }
 }

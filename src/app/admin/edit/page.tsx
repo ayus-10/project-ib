@@ -80,7 +80,6 @@ export default function Edit() {
     }
 
     const payload: UpdateJobDTO = {
-      jobId: jobIdInt,
       title: titleInputRef.current.value,
       company: companyInputRef.current.value,
       location: locationInputRef.current.value || "REMOTE",
@@ -91,7 +90,7 @@ export default function Edit() {
     };
 
     const sendRequest = () =>
-      axios.patch("/api/job", payload, {
+      axios.patch("/api/job?jobId=" + jobIdInt, payload, {
         withCredentials: true,
         headers: {
           Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,

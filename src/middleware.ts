@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
-import { ACCESS_TOKEN_SECRET, ADMIN, REFRESH_TOKEN_SECRET } from "./constants";
+import { ADMIN } from "./constants";
 import { jwtVerify } from "jose";
 import { MyJwtPayload } from "./interfaces/MyJwtPayload";
 import { BadRequest } from "./utils/httpResponses";
+import { getTokenSecrets } from "./app/api/helpers";
+import { BadRequestError, ClientError } from "./utils/customErrors";
 
 export async function middleware(request: NextRequest) {
   const isAdminOnlyRoute =
@@ -11,16 +13,14 @@ export async function middleware(request: NextRequest) {
 
   // check for access and refresh tokens to determine if user is logged in
   try {
-    if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
-      throw new Error("JWT secrets are not available.");
-    }
+    const [ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET] = getTokenSecrets();
     const refreshTokenSecret = new TextEncoder().encode(REFRESH_TOKEN_SECRET);
     const accessTokenSecret = new TextEncoder().encode(ACCESS_TOKEN_SECRET);
 
     const refreshTokenCookie = request.cookies.get("refreshToken");
 
     if (!refreshTokenCookie || !refreshTokenCookie.value) {
-      throw new Error("Invalid refresh token in cookie.");
+      throw new ClientError("Invalid refresh token in cookie.");
     }
 
     await jwtVerify(refreshTokenCookie.value, refreshTokenSecret);
@@ -28,7 +28,7 @@ export async function middleware(request: NextRequest) {
     const authHeader = request.headers.get("authorization");
 
     if (!authHeader || authHeader.split(" ").length !== 2) {
-      throw new Error("Invalid auth header.");
+      throw new ClientError("Invalid authorization header.");
     }
 
     const accessToken = authHeader.split(" ")[1];
@@ -42,17 +42,20 @@ export async function middleware(request: NextRequest) {
     response.headers.set("x-email", email);
     response.headers.set("x-role", role);
 
-    const isAdmin = role === ADMIN;
-
-    if (!isAdmin && isAdminOnlyRoute) {
-      throw new Error("Only admins can access this URL.");
+    if (role !== ADMIN && isAdminOnlyRoute) {
+      throw new BadRequestError("Only admins can access this URL.");
     }
 
     return response;
-  } catch {
-    if (isAdminOnlyRoute) {
-      return BadRequest("Only admins can access this URL.");
+  } catch (error) {
+    if (error instanceof BadRequestError) {
+      return BadRequest(error.message);
     }
+    if (error instanceof ClientError) {
+      return NextResponse.next();
+    }
+
+    console.log("Error in middleware: ", error);
     return NextResponse.next();
   }
 }

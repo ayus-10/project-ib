@@ -1,14 +1,15 @@
 import {
   BadRequest,
   InternalServerError,
+  NotFound,
   Ok,
   Unauthorized,
 } from "@/utils/httpResponses";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "@/constants";
 import { cookies } from "next/headers";
+import { getTokenSecrets } from "../helpers";
 
 const prisma = new PrismaClient();
 
@@ -20,11 +21,7 @@ interface LoginUserDTO {
 // login user
 export async function POST(request: Request) {
   try {
-    if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
-      throw new Error(
-        "Access or refresh token secrets not found in environments."
-      );
-    }
+    const [ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET] = getTokenSecrets();
 
     const { email, password } = (await request.json()) as LoginUserDTO;
 
@@ -81,7 +78,7 @@ export async function GET(request: Request) {
     });
 
     if (!user) {
-      throw new Error("User not found in database.");
+      return NotFound("User not found in database.");
     }
 
     return Ok({

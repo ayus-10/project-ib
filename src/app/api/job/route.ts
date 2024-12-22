@@ -7,65 +7,51 @@ import {
   Ok,
   Unauthorized,
 } from "@/utils/httpResponses";
-import {
-  areJobDetailsValid,
-  hasMinimumWords,
-  isValidNumber,
-} from "@/utils/jobDetailsValidation";
 import { PrismaClient } from "@prisma/client";
+import {
+  getJobIdFromParams,
+  getUserIdFromHeaders,
+  getValidJob,
+  validateJobDetails,
+} from "../helpers";
+import {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} from "@/utils/customErrors";
 
 const prisma = new PrismaClient();
 
+// get job with given id
 export async function GET(request: Request) {
   try {
-    const url = new URL(request.url);
-    const jobId = parseInt(url.searchParams.get("jobId") ?? "");
+    const jobId = getJobIdFromParams(request);
 
-    if (!jobId || Number.isNaN(jobId)) {
-      return BadRequest("Invalid job ID.");
-    }
-
-    const job = await prisma.job.findFirst({ where: { id: jobId } });
-
-    if (!job) {
-      return NotFound("Specified job not found.");
-    }
+    const job = await getValidJob(jobId);
 
     return Ok({ job });
   } catch (error) {
+    if (error instanceof BadRequestError) {
+      return BadRequest(error.message);
+    }
+    if (error instanceof NotFoundError) {
+      return NotFound(error.message);
+    }
     return InternalServerError(error);
   }
 }
 
+// create new job
 export async function POST(request: Request) {
   try {
+    const createJobDto = (await request.json()) as CreateJobDTO;
+
     const { company, description, location, title, created, deadline, type } =
-      (await request.json()) as CreateJobDTO;
+      createJobDto;
 
-    const userIdString = request.headers.get("x-id");
-    if (!userIdString) {
-      return Unauthorized("Please log in to continue.");
-    }
+    const userId = getUserIdFromHeaders(request);
 
-    const userId = parseInt(userIdString);
-
-    if (
-      !areJobDetailsValid(
-        company,
-        description,
-        location,
-        title,
-        created,
-        deadline,
-        type
-      )
-    ) {
-      return BadRequest("Please make sure all the provided data are valid.");
-    }
-
-    if (!hasMinimumWords(description)) {
-      return BadRequest("The description must contain atleast 50 words.");
-    }
+    validateJobDetails(createJobDto);
 
     await prisma.job.create({
       data: {
@@ -82,57 +68,31 @@ export async function POST(request: Request) {
 
     return Ok("Job listing created successfully.");
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return Unauthorized(error.message);
+    }
+    if (error instanceof BadRequestError) {
+      return BadRequest(error.message);
+    }
     return InternalServerError(error);
   }
 }
 
+// update existing job with given id
 export async function PATCH(request: Request) {
   try {
-    const {
-      company,
-      description,
-      jobId,
-      location,
-      title,
-      created,
-      deadline,
-      type,
-    } = (await request.json()) as UpdateJobDTO;
+    const updateJobDto = (await request.json()) as UpdateJobDTO;
 
-    if (
-      !areJobDetailsValid(
-        company,
-        description,
-        location,
-        title,
-        created,
-        deadline,
-        type
-      )
-    ) {
-      return BadRequest("Please make sure all the provided data are valid.");
-    }
+    const { company, description, location, title, created, deadline, type } =
+      updateJobDto;
 
-    if (!hasMinimumWords(description)) {
-      return BadRequest("The description must contain atleast 50 words.");
-    }
+    validateJobDetails(updateJobDto);
 
-    if (!isValidNumber(jobId)) {
-      return BadRequest("Invalid job ID.");
-    }
+    const userId = getUserIdFromHeaders(request);
 
-    const userIdString = request.headers.get("x-id");
-    if (!userIdString) {
-      return Unauthorized("Please log in to continue.");
-    }
+    const jobId = getJobIdFromParams(request);
 
-    const userId = parseInt(userIdString);
-
-    const job = await prisma.job.findFirst({ where: { id: jobId } });
-
-    if (!job) {
-      return NotFound("Specified job not found.");
-    }
+    const job = await getValidJob(jobId);
 
     if (job.userId !== userId) {
       return Unauthorized("Not authorized to modify the job details.");
@@ -153,31 +113,27 @@ export async function PATCH(request: Request) {
 
     return Ok("Job listing updated successfully.");
   } catch (error) {
+    if (error instanceof BadRequestError) {
+      return BadRequest(error.message);
+    }
+    if (error instanceof UnauthorizedError) {
+      return Unauthorized(error.message);
+    }
+    if (error instanceof NotFoundError) {
+      return NotFound(error.message);
+    }
     return InternalServerError(error);
   }
 }
 
+// delete job with given id
 export async function DELETE(request: Request) {
   try {
-    const url = new URL(request.url);
-    const jobId = parseInt(url.searchParams.get("jobId") ?? "");
+    const jobId = getJobIdFromParams(request);
 
-    if (!jobId || Number.isNaN(jobId)) {
-      return BadRequest("Invalid job ID.");
-    }
+    const job = await getValidJob(jobId);
 
-    const job = await prisma.job.findFirst({ where: { id: jobId } });
-
-    if (!job) {
-      return NotFound("Specified job not found.");
-    }
-
-    const userIdString = request.headers.get("x-id");
-    if (!userIdString) {
-      return Unauthorized("Please log in to continue.");
-    }
-
-    const userId = parseInt(userIdString);
+    const userId = getUserIdFromHeaders(request);
 
     if (job.userId !== userId) {
       return Unauthorized("Not authorized to delete the job.");
@@ -187,6 +143,15 @@ export async function DELETE(request: Request) {
 
     return Ok("Job listing deleted successfully.");
   } catch (error) {
+    if (error instanceof BadRequestError) {
+      return BadRequest(error.message);
+    }
+    if (error instanceof UnauthorizedError) {
+      return Unauthorized(error.message);
+    }
+    if (error instanceof NotFoundError) {
+      return NotFound(error.message);
+    }
     return InternalServerError(error);
   }
 }
