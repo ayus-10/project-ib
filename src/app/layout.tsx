@@ -7,6 +7,7 @@ import AuthGuard from "@/guards/AuthGuard";
 import AdminGuard from "@/guards/AdminGuard";
 import { Suspense } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import NextTopLoader from "nextjs-toploader";
 
 export const metadata: Metadata = {
   title: "iBerozgar",
@@ -23,6 +24,7 @@ export default function RootLayout({
     <ReduxProvider>
       <html lang="en">
         <body>
+          <NextTopLoader color="#4a00ff" />
           <NavBar />
           <AuthGuard>
             <AdminGuard>
